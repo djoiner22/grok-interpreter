@@ -299,6 +299,31 @@ def start_terminal_interface(interpreter):
             "help_text": "Run OI in stdin mode",
             "type": bool,
         },
+        # Grok-Cursor Workflow arguments
+        {
+            "name": "grok_project",
+            "nickname": "gp",
+            "help_text": "Create a project using Grok for outline generation and Cursor for implementation",
+            "type": str,
+        },
+        {
+            "name": "grok_outline",
+            "nickname": "go",
+            "help_text": "Generate a project outline using Grok model",
+            "type": str,
+        },
+        {
+            "name": "use_grok",
+            "nickname": "ug",
+            "help_text": "Use Grok model for AI operations",
+            "type": bool,
+        },
+        {
+            "name": "workspace_path",
+            "nickname": "wp",
+            "help_text": "Workspace path for Grok-Cursor project generation",
+            "type": str,
+        },
     ]
 
     if "--stdin" in sys.argv and "--plain" not in sys.argv:
@@ -568,6 +593,68 @@ Use """ to write multi-line messages.
     interpreter.in_terminal_interface = True
 
     contribute_conversation_launch_logic(interpreter)
+
+    # Grok-Cursor Workflow handling
+    if args.grok_project:
+        try:
+            print(f"\n🚀 Creating project with Grok-Cursor workflow: {args.grok_project}\n")
+            
+            # Configure Grok model if use_grok is set
+            if args.use_grok:
+                interpreter.llm.model = "grok-3-beta"
+                print("🤖 Using Grok model for outline generation")
+            
+            # Create project using the workflow
+            result = interpreter.create_project_with_grok(
+                args.grok_project, 
+                args.workspace_path
+            )
+            
+            if result.get("success"):
+                print(f"✅ Project created successfully!")
+                print(f"📁 Project path: {result['summary']['project_path']}")
+                print(f"🔧 Model used: {result['summary']['model_used']}")
+                print(f"📝 Project name: {result['summary']['project_name']}")
+                print(f"\n🎉 Project opened in Cursor!")
+            else:
+                print(f"❌ Project creation failed: {result.get('message', 'Unknown error')}")
+                
+        except Exception as e:
+            print(f"❌ Error in Grok-Cursor workflow: {e}")
+        return
+
+    if args.grok_outline:
+        try:
+            print(f"\n🤖 Generating project outline with Grok: {args.grok_outline}\n")
+            
+            # Configure Grok model
+            interpreter.llm.model = "grok-3-beta"
+            
+            # Generate outline
+            result = interpreter.generate_outline_with_grok(args.grok_outline)
+            
+            if result.get("success"):
+                print("✅ Project outline generated successfully!\n")
+                print("📋 Generated Outline:")
+                print("-" * 50)
+                print(result.get("raw_outline", ""))
+                print("-" * 50)
+                
+                # Ask if user wants to implement with Cursor
+                implement = input("\n💡 Would you like to implement this project with Cursor? (y/n): ").strip().lower()
+                if implement == 'y':
+                    impl_result = interpreter.implement_with_cursor(result)
+                    if impl_result.get("success"):
+                        print(f"\n🎉 Project implemented and opened in Cursor!")
+                        print(f"📁 Project path: {impl_result.get('project_path')}")
+                    else:
+                        print(f"❌ Implementation failed: {impl_result.get('message', 'Unknown error')}")
+            else:
+                print(f"❌ Outline generation failed: {result.get('message', 'Unknown error')}")
+                
+        except Exception as e:
+            print(f"❌ Error generating outline: {e}")
+        return
 
     # Standard in mode
     if args.stdin:
