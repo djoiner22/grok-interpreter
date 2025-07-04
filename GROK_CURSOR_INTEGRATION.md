@@ -1,322 +1,510 @@
-# Grok-Cursor Integration for Open Interpreter
+# Grok'ed-Interpreter: Grok-Cursor Integration
 
-This documentation explains how to use the new Grok-Cursor integration in Open Interpreter, which enables a powerful workflow where Grok AI generates project outlines and Cursor editor implements them automatically.
+Complete integration guide for using **Grok'ed-Interpreter** (Grokit) with Grok AI models and Cursor editor automation.
 
-## Overview
+## 🚀 Overview
 
-The integration provides three main features:
+**Grok'ed-Interpreter** seamlessly combines the power of:
+- **Grok AI** (by xAI) - Advanced language models with real-time knowledge
+- **Cursor Editor** - AI-powered code editor with intelligent automation
+- **Grokit Core** - Enhanced Open Interpreter with workflow orchestration
 
-1. **Grok API Integration** - Use Grok models for AI operations
-2. **Cursor Communication** - Automated project creation and file management with Cursor
-3. **Complete Workflow** - End-to-end project generation from idea to implementation
+This integration enables you to:
+1. **Generate project outlines** using Grok's intelligence
+2. **Create complete projects** with proper file structure
+3. **Automatically open projects** in Cursor for implementation
+4. **Orchestrate workflows** between AI planning and code execution
 
-## Prerequisites
+## 🔧 Installation
 
-### 1. Grok API Access
+### Prerequisites
+- Python 3.8+
+- Node.js 16+ (for React UI)
+- [Cursor Editor](https://cursor.sh) installed and accessible
 
-You'll need access to the Grok API (xAI). You can get access through:
-- [OpenRouter](https://openrouter.ai/) (recommended for easy access)
-- [AI/ML API](https://aimlapi.com/) 
-- Direct xAI API access
-
-### 2. Cursor Editor
-
-Install [Cursor](https://cursor.sh/) - the AI-first code editor.
-
-### 3. API Key Configuration
-
-Set your API key as an environment variable or pass it via command line:
-
+### Install Grokit
 ```bash
-# For OpenRouter (recommended)
-export OPENAI_API_KEY="your_openrouter_key"
-export OPENAI_API_BASE="https://openrouter.ai/api/v1"
-
-# Or for direct xAI access
-export XAI_API_KEY="your_xai_key"
+pip install grokit
 ```
 
-## Quick Start
-
-### Complete Workflow (Grok + Cursor)
-
-Create a complete project from a description:
-
+### Install with All Features
 ```bash
-# Basic usage
-interpreter --grok-project "Create a todo app with React and Node.js backend"
-
-# With custom workspace
-interpreter --grok-project "Build a Python web scraper" --workspace-path ~/projects
-
-# Force Grok model usage
-interpreter --grok-project "Create a REST API with FastAPI" --use-grok
+pip install grokit[server,ui,local,os]
 ```
 
-### Outline-Only Generation
+## 🔑 API Configuration
 
-Generate just the project outline with Grok:
-
+### Option 1: OpenRouter (Recommended)
 ```bash
-interpreter --grok-outline "Create a machine learning project for image classification"
+export OPENROUTER_API_KEY="your_openrouter_api_key"
 ```
 
-This will:
-1. Generate a detailed project outline using Grok
-2. Display the outline
-3. Ask if you want to implement it with Cursor
-
-## Usage Examples
-
-### Example 1: Web Application
-
+### Option 2: AI/ML API
 ```bash
-interpreter --grok-project "Create a full-stack e-commerce website with React frontend, Node.js backend, and MongoDB database. Include user authentication, product catalog, shopping cart, and payment integration."
+export AIMLAPI_API_KEY="your_aimlapi_key"
 ```
 
-**What happens:**
-1. Grok generates a comprehensive project structure
-2. Creates directories: `frontend/`, `backend/`, `database/`, `docs/`
-3. Generates starter files with proper configurations
-4. Opens the project in Cursor for further development
-
-### Example 2: Python Data Science Project
-
+### Option 3: Direct xAI API (When Available)
 ```bash
-interpreter --grok-project "Build a data analysis project that processes CSV files, performs statistical analysis, and generates visualizations using pandas, matplotlib, and seaborn"
+export XAI_API_KEY="your_xai_api_key"
 ```
 
-**What happens:**
-1. Creates project structure with `src/`, `data/`, `notebooks/`, `tests/`
-2. Generates Python files with data processing templates
-3. Creates requirements.txt with necessary packages
-4. Includes Jupyter notebook templates
+## 📋 Available Grok Models
 
-### Example 3: Mobile App Backend
+| Model | Description | Use Case |
+|-------|-------------|----------|
+| `grok-3-beta` | Latest Grok 3 Beta | Complex reasoning, code generation |
+| `grok-beta` | Grok 1 Beta | General tasks, conversations |
+| `grok-3-mini-beta` | Grok 3 Mini | Faster responses, simpler tasks |
 
+## 🎯 Usage Examples
+
+### Command Line Interface
+
+#### 1. Create a Complete Project
 ```bash
-interpreter --grok-project "Create a REST API backend for a mobile fitness app with user profiles, workout tracking, and social features using FastAPI and PostgreSQL"
+grokit --grok-project "Create a modern React dashboard with authentication, user management, and real-time analytics"
 ```
 
-## Command Line Options
+#### 2. Generate Project Outline
+```bash
+grokit --grok-outline "Build a Python microservice with FastAPI, PostgreSQL, and Docker"
+```
 
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--grok-project` | `-gp` | Create complete project with Grok outline + Cursor implementation |
-| `--grok-outline` | `-go` | Generate project outline only using Grok |
-| `--use-grok` | `-ug` | Force use of Grok model for AI operations |
-| `--workspace-path` | `-wp` | Specify workspace directory for project creation |
+#### 3. Interactive Chat with Grok
+```bash
+grokit --use-grok --model grok-3-beta
+```
 
-## Programmatic Usage
+### Python API
 
-You can also use the integration programmatically:
-
+#### Basic Usage
 ```python
-from interpreter import interpreter
+import grokit
 
-# Complete workflow
+# Initialize with Grok
+interpreter = grokit.new_interpreter()
+interpreter.llm.model = "grok-3-beta"
+
+# Generate code
+interpreter.chat("Create a web scraper that extracts product data from e-commerce sites")
+
+# Create project with Grok-Cursor workflow
 result = interpreter.create_project_with_grok(
-    "Create a Python web scraper for news articles",
-    workspace_path="/home/user/projects"
+    "Build a modern blog platform with Next.js and Supabase",
+    workspace_path="~/projects",
+    open_in_cursor=True
 )
-
-print(f"Project created at: {result['summary']['project_path']}")
-
-# Outline only
-outline = interpreter.generate_outline_with_grok(
-    "Build a machine learning model for sentiment analysis"
-)
-
-# Implement existing outline
-implementation = interpreter.implement_with_cursor(outline)
 ```
 
-## Model Selection
+#### Advanced Workflow
+```python
+from grokit.workflows import GrokCursorWorkflow
 
-The integration supports various Grok models:
+# Initialize workflow
+workflow = GrokCursorWorkflow(interpreter)
 
+# Run complete workflow
+result = workflow.run_complete_workflow(
+    "Create a multi-tenant SaaS application with React, Node.js, and PostgreSQL",
+    use_grok=True
+)
+
+if result["success"]:
+    print(f"Project created: {result['summary']['project_path']}")
+    print(f"Outline generated with: {result['summary']['model_used']}")
+```
+
+## 🌐 Web Interface
+
+### Start the Server
 ```bash
-# Use specific Grok model
-interpreter --model grok-3-beta --grok-project "Your project description"
-
-# Available models:
-# - grok-beta (latest stable)
-# - grok-3-beta (most advanced)
-# - grok-3-mini-beta (faster, lighter)
+grok-server
 ```
 
-## Configuration
+### Access the UI
+Open http://localhost:8080 in your browser
+
+### Features
+- **Real-time Chat** with Grok models
+- **Project Wizard** with step-by-step creation
+- **Visual Project Browser** with integrated file management
+- **Model Configuration** with easy switching
+- **Live System Monitoring** with performance metrics
+
+## 🔄 Workflow Examples
+
+### 1. Full-Stack Web Application
+```python
+# Description
+description = """
+Create a modern e-commerce platform with:
+- React frontend with TypeScript
+- Node.js backend with Express
+- PostgreSQL database with Prisma ORM
+- Stripe payment integration
+- Admin dashboard
+- User authentication with JWT
+- Real-time notifications
+- Docker containerization
+"""
+
+# Generate outline
+outline = workflow.generate_project_outline(description, use_grok=True)
+
+# Implement with Cursor
+implementation = workflow.implement_project_with_cursor(outline)
+```
+
+### 2. Machine Learning Pipeline
+```python
+description = """
+Build a complete ML pipeline for sentiment analysis:
+- Data ingestion from multiple sources
+- Feature engineering pipeline
+- Model training with scikit-learn
+- REST API for predictions
+- Monitoring and logging
+- Deployment with Docker
+- CI/CD pipeline
+"""
+
+result = workflow.run_complete_workflow(description, use_grok=True)
+```
+
+### 3. Mobile App Backend
+```python
+description = """
+Create a backend for a social media mobile app:
+- GraphQL API with Apollo Server
+- Real-time subscriptions
+- Image upload to AWS S3
+- User authentication and authorization
+- Push notifications
+- PostgreSQL database
+- Redis caching
+- Comprehensive testing
+"""
+
+result = workflow.run_complete_workflow(description, use_grok=True)
+```
+
+## 🎨 Custom Project Templates
+
+### Create Custom Templates
+```python
+from grokit.workflows import GrokCursorWorkflow
+
+workflow = GrokCursorWorkflow(interpreter)
+
+# Define custom template
+workflow.add_template("microservice", {
+    "description": "Containerized microservice with FastAPI",
+    "structure": {
+        "app/": ["main.py", "models.py", "routes.py", "database.py"],
+        "tests/": ["test_main.py", "test_routes.py"],
+        "docker/": ["Dockerfile", "docker-compose.yml"],
+        "docs/": ["README.md", "API.md"]
+    },
+    "dependencies": [
+        "fastapi>=0.104.0",
+        "uvicorn>=0.24.0",
+        "sqlalchemy>=2.0.0",
+        "pytest>=7.4.0"
+    ],
+    "cursor_config": {
+        "extensions": ["python", "docker", "rest-client"],
+        "settings": {
+            "python.defaultInterpreterPath": "./venv/bin/python"
+        }
+    }
+})
+
+# Use the template
+result = workflow.create_project(
+    "user-service",
+    template="microservice",
+    features=["authentication", "database", "monitoring"]
+)
+```
+
+## 🔧 Configuration
 
 ### Environment Variables
-
 ```bash
 # API Configuration
-export OPENAI_API_KEY="your_api_key"
-export OPENAI_API_BASE="https://openrouter.ai/api/v1"  # for OpenRouter
+export OPENROUTER_API_KEY="your_key"
+export XAI_API_KEY="your_key"
+export OPENAI_API_KEY="your_key"
+export ANTHROPIC_API_KEY="your_key"
+
+# Default Model
+export DEFAULT_MODEL="grok-3-beta"
 
 # Workspace Configuration
-export GROK_CURSOR_WORKSPACE="~/projects"
+export GROKIT_WORKSPACE="~/grokit-projects"
+export CURSOR_PATH="/usr/local/bin/cursor"
 
-# Cursor Configuration
-export CURSOR_COMMAND="cursor"  # or "code" if using VS Code
+# Server Configuration
+export GROKIT_HOST="0.0.0.0"
+export GROKIT_PORT="8080"
 ```
 
-### Custom Workspace
+### Configuration File
+Create `~/.grokit/config.yaml`:
+```yaml
+models:
+  default: "grok-3-beta"
+  providers:
+    openrouter:
+      api_key: "${OPENROUTER_API_KEY}"
+      base_url: "https://openrouter.ai/api/v1"
+    xai:
+      api_key: "${XAI_API_KEY}"
+      base_url: "https://api.x.ai/v1"
 
-```bash
-# Create projects in specific directory
-interpreter --grok-project "Your project" --workspace-path /path/to/workspace
+workspace:
+  default_path: "~/grokit-projects"
+  auto_open_cursor: true
+  confirm_before_run: true
+
+cursor:
+  command: "cursor"
+  extensions:
+    - "ms-python.python"
+    - "ms-vscode.vscode-typescript-next"
+    - "bradlc.vscode-tailwindcss"
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
 ```
 
-## Project Structure Generated
+## 🚀 Advanced Features
 
-A typical generated project includes:
-
-```
-project-name/
-├── README.md                 # Project documentation
-├── requirements.txt          # Dependencies (Python)
-├── package.json             # Dependencies (Node.js)
-├── src/                     # Source code
-│   ├── main.py|index.js     # Entry point
-│   ├── models/              # Data models
-│   ├── services/            # Business logic
-│   └── utils/               # Utilities
-├── tests/                   # Test files
-├── docs/                    # Documentation
-├── config/                  # Configuration files
-└── .grok-cursor-workflow.json  # Workflow metadata
-```
-
-## Advanced Features
-
-### Custom Instructions
-
-You can add custom instructions to influence the project generation:
-
-```bash
-interpreter --grok-project "Create a web app" --custom-instructions "Use TypeScript, follow clean architecture principles, include comprehensive tests"
-```
-
-### Template Integration
-
-The system can detect and use project templates:
-
+### Model Switching
 ```python
-# Custom project template
-template = {
-    "name": "microservice-template",
-    "directories": ["src", "tests", "docker", "docs"],
-    "files": {
-        "Dockerfile": {"content": "..."},
-        "docker-compose.yml": {"content": "..."}
-    }
-}
+# Switch models dynamically
+interpreter.llm.model = "grok-3-beta"      # For creative tasks
+interpreter.chat("Build a game engine")
 
-result = interpreter.create_project_with_grok(
-    "Create a microservice",
-    template=template
-)
+interpreter.llm.model = "grok-3-mini-beta"  # For quick tasks
+interpreter.chat("Fix this bug")
+
+interpreter.llm.model = "gpt-4"            # For detailed analysis
+interpreter.chat("Analyze this codebase")
 ```
 
-## Troubleshooting
+### Batch Processing
+```python
+# Process multiple projects
+projects = [
+    "Create a React component library",
+    "Build a Python CLI tool",
+    "Generate a REST API documentation site"
+]
+
+for project in projects:
+    result = workflow.run_complete_workflow(project, use_grok=True)
+    print(f"Created: {result['summary']['project_name']}")
+```
+
+### Custom Hooks
+```python
+# Add custom hooks to the workflow
+def pre_generation_hook(description):
+    """Custom preprocessing before outline generation"""
+    enhanced_description = f"""
+    {description}
+    
+    Additional Requirements:
+    - Include comprehensive error handling
+    - Add logging and monitoring
+    - Follow security best practices
+    - Include unit and integration tests
+    """
+    return enhanced_description
+
+def post_generation_hook(result):
+    """Custom processing after project generation"""
+    if result["success"]:
+        # Add custom files or configurations
+        project_path = result["summary"]["project_path"]
+        
+        # Add custom README
+        readme_path = f"{project_path}/README.md"
+        with open(readme_path, "a") as f:
+            f.write("\n\n## Generated with Grok'ed-Interpreter\n")
+            f.write("This project was created using Grokit's AI-powered workflow.\n")
+
+# Register hooks
+workflow.register_hook("pre_generation", pre_generation_hook)
+workflow.register_hook("post_generation", post_generation_hook)
+```
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **API Key Not Set**
+1. **Grok API Not Accessible**
+   ```bash
+   # Check API key
+   curl -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+        "https://openrouter.ai/api/v1/models"
+   
+   # Test with grokit
+   grokit --test-grok
    ```
-   Error: No API key provided
-   ```
-   **Solution:** Set your API key environment variable
 
-2. **Cursor Not Found**
+2. **Cursor Not Opening**
+   ```bash
+   # Check cursor command
+   which cursor
+   cursor --version
+   
+   # Test cursor integration
+   grokit --test-cursor
    ```
-   Error: Cursor command not found
+
+3. **Project Creation Fails**
+   ```bash
+   # Check workspace permissions
+   ls -la ~/grokit-projects
+   
+   # Check disk space
+   df -h
+   
+   # Enable debug mode
+   grokit --debug --grok-project "test project"
    ```
-   **Solution:** Install Cursor or set CURSOR_COMMAND environment variable
 
-3. **Project Creation Failed**
-   ```
-   Error: Failed to create project structure
-   ```
-   **Solution:** Check workspace permissions and available disk space
-
-### Debug Mode
-
-Enable verbose logging for troubleshooting:
-
+### Debug Commands
 ```bash
-interpreter --grok-project "Your project" --verbose --debug
+# Check system status
+grokit --status
+
+# Test all integrations
+grokit --test-all
+
+# Enable verbose logging
+grokit --verbose --grok-project "test"
+
+# Check configuration
+grokit --config-check
 ```
 
-## Tips for Best Results
+## 📊 Performance Optimization
 
-1. **Be Specific**: Provide detailed project descriptions for better outlines
-2. **Include Tech Stack**: Mention preferred technologies and frameworks
-3. **Specify Requirements**: Include features, constraints, and requirements
-4. **Use Examples**: Reference similar projects or patterns
+### Model Selection
+- **grok-3-beta**: Best for complex reasoning and large projects
+- **grok-3-mini-beta**: Faster for simple tasks and quick iterations
+- **grok-beta**: Balanced performance for general use
 
-### Good Project Descriptions
+### Caching
+```python
+# Enable response caching
+interpreter.llm.cache_enabled = True
+interpreter.llm.cache_ttl = 3600  # 1 hour
 
-✅ **Good:** "Create a REST API for a book library system using FastAPI and PostgreSQL. Include user authentication with JWT, CRUD operations for books and authors, search functionality, and rate limiting. Use SQLAlchemy for ORM and include comprehensive API documentation with Swagger."
-
-❌ **Poor:** "Make a web app"
-
-## Integration with Other Tools
-
-### Git Integration
-
-Projects are created with git initialization:
-
-```bash
-cd generated-project
-git add .
-git commit -m "Initial project setup by Grok-Cursor workflow"
+# Use cached responses
+result = interpreter.chat("Create a React component")  # Cached
 ```
 
-### Docker Support
+### Parallel Processing
+```python
+import asyncio
 
-Many generated projects include Docker configuration:
-
-```bash
-cd generated-project
-docker-compose up  # If docker-compose.yml was generated
+async def create_multiple_projects():
+    projects = [
+        "React dashboard",
+        "Python API",
+        "Vue.js app"
+    ]
+    
+    tasks = [
+        workflow.run_complete_workflow(project, use_grok=True)
+        for project in projects
+    ]
+    
+    results = await asyncio.gather(*tasks)
+    return results
 ```
 
-### CI/CD Templates
+## 🔐 Security
 
-Request CI/CD configuration in your project description:
+### API Key Management
+```python
+# Use environment variables
+import os
+from grokit.config import Config
 
-```bash
-interpreter --grok-project "Create a Python web app with GitHub Actions CI/CD pipeline, automated testing, and deployment to Heroku"
+config = Config()
+config.set_api_key("openrouter", os.getenv("OPENROUTER_API_KEY"))
+
+# Use key rotation
+config.rotate_api_keys()
 ```
 
-## Contributing
+### Safe Code Execution
+```python
+# Enable safe mode
+interpreter.safe_mode = True
+interpreter.confirm_before_run = True
 
-To contribute to the Grok-Cursor integration:
+# Restrict file operations
+interpreter.restrict_file_operations = True
+interpreter.allowed_paths = ["~/grokit-projects"]
+```
 
-1. Fork the repository
-2. Create your feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+## 🤝 Contributing
 
-## Support
+### Development Setup
+```bash
+# Clone repository
+git clone https://github.com/your-username/grokit.git
+cd grokit
 
-For issues and support:
+# Install in development mode
+pip install -e .[dev]
 
-1. Check this documentation
-2. Enable debug mode for detailed logs
-3. Open an issue on GitHub with logs and reproduction steps
+# Run tests
+pytest tests/
 
-## Changelog
+# Start development server
+grok-server --dev
+```
 
-### v1.0.0
-- Initial Grok API integration
-- Cursor communication system
-- Complete workflow implementation
-- Command-line interface
-- Programmatic API
+### Creating Extensions
+```python
+# Create custom extension
+from grokit.extensions import Extension
+
+class CustomExtension(Extension):
+    def __init__(self):
+        super().__init__("custom", "1.0.0")
+    
+    def initialize(self, interpreter):
+        # Add custom functionality
+        pass
+    
+    def handle_command(self, command, args):
+        # Handle custom commands
+        pass
+
+# Register extension
+interpreter.register_extension(CustomExtension())
+```
+
+## 📚 Resources
+
+- **Documentation**: [grokit.readthedocs.io](https://grokit.readthedocs.io)
+- **Examples**: [github.com/grokit/examples](https://github.com/grokit/examples)
+- **Community**: [discord.gg/grokit](https://discord.gg/grokit)
+- **Issues**: [github.com/grokit/issues](https://github.com/grokit/issues)
 
 ---
 
-**Happy coding with Grok and Cursor! 🚀**
+**Built with ❤️ by the Grok'ed-Interpreter community**
+
+For more information, visit: [grokit.ai](https://grokit.ai)

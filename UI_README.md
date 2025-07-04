@@ -1,253 +1,347 @@
-# Open Interpreter React UI - Grok-Cursor Edition
+# Grok'ed-Interpreter React Web UI
 
-A beautiful, modern React.js user interface for Open Interpreter with integrated Grok AI and Cursor automation support.
-
-![Open Interpreter UI](https://img.shields.io/badge/React-18.2.0-blue) ![Material-UI](https://img.shields.io/badge/Material--UI-5.15.0-purple) ![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-green)
+A modern, feature-rich React web interface for **Grok'ed-Interpreter** (Grokit), providing an intuitive way to interact with AI-powered development tools.
 
 ## 🌟 Features
 
-### Core Features
-- **Modern React UI** - Beautiful, responsive interface built with Material-UI
-- **Real-time Chat** - WebSocket-powered chat interface with the AI
-- **Grok Integration** - Native support for Grok AI models from xAI
-- **Cursor Automation** - Automated project creation with Cursor editor integration
+- **Real-time AI Chat** - Interactive conversation with Grok and other AI models
 - **Project Wizard** - Step-by-step project creation with AI assistance
-- **Dark/Light Theme** - Automatic theme switching with user preferences
-- **Mobile Responsive** - Works seamlessly on desktop, tablet, and mobile
+- **Grok Integration** - Direct access to xAI's Grok models for intelligent code generation
+- **Cursor Automation** - Seamless integration with Cursor editor for project implementation
+- **Modern UI** - Beautiful Material-UI design with dark/light theme support
+- **Real-time Updates** - WebSocket-based communication for instant feedback
+- **Code Execution** - Safe, sandboxed environment for running AI-generated code
+- **File Management** - Integrated workspace and project management
 
-### Advanced Features
-- **Code Execution** - Real-time code execution with syntax highlighting
-- **Project Management** - Browse, create, and manage your projects
-- **Model Configuration** - Easy switching between AI models (Grok, GPT-4, Claude)
-- **Workspace Integration** - File system integration and workspace management
-- **Real-time Status** - Live connection status and system health monitoring
-- **Chat History** - Persistent chat sessions and conversation history
-
-## 🚀 Quick Start
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 16+ and npm/yarn
-- Python 3.8+ (for the backend)
-- Git
+- Node.js 16.0 or higher
+- npm or yarn package manager
+- Python 3.8+ with Grokit installed
 
-### 1. Clone and Setup
+### Installation
 
-```bash
-# Clone the repository (if you haven't already)
-git clone <your-repo-url>
-cd open-interpreter
+1. **Install Grokit**:
+   ```bash
+   pip install grokit
+   ```
 
-# Install UI dependencies
-cd ui
-npm install
+2. **Install UI Dependencies**:
+   ```bash
+   cd ui
+   npm install --legacy-peer-deps
+   ```
 
-# Install backend dependencies
-cd ../backend
-pip install -r requirements.txt
+3. **Start the Backend Server**:
+   ```bash
+   # From project root
+   grok-server
+   ```
 
-# Install Open Interpreter with Grok-Cursor integration
-cd ..
-pip install -e .
-```
+4. **Start the Frontend Development Server**:
+   ```bash
+   # In ui directory
+   npm start
+   ```
 
-### 2. Configure API Keys
+5. **Access the Application**:
+   Open http://localhost:3000 in your browser
 
-Create a `.env` file in the `ui` directory:
-
-```env
-# React App Configuration
-REACT_APP_BACKEND_URL=http://localhost:8080
-REACT_APP_VERSION=1.0.0
-
-# Backend Configuration (optional)
-OPENAI_API_KEY=your_openai_key_here
-ANTHROPIC_API_KEY=your_anthropic_key_here
-```
-
-For Grok API access, you can use:
-- [OpenRouter](https://openrouter.ai/) (recommended)
-- [AI/ML API](https://aimlapi.com/)
-- Direct xAI access (when available)
-
-### 3. Start the Application
-
-**Option A: Development Mode (Recommended)**
-
-Terminal 1 - Start the backend:
-```bash
-cd backend
-python server.py
-```
-
-Terminal 2 - Start the React UI:
-```bash
-cd ui
-npm start
-```
-
-**Option B: Production Build**
-
-```bash
-# Build the UI
-cd ui
-npm run build
-
-# Serve the built files (backend will serve them)
-cd ../backend
-python server.py --serve-static
-```
-
-### 4. Access the Application
-
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8080
-- **Health Check**: http://localhost:8080/api/health
-
-## 📁 Project Structure
-
-```
-open-interpreter/
-├── ui/                          # React frontend
-│   ├── public/                  # Static files
-│   │   ├── components/          # Reusable UI components
-│   │   │   ├── Sidebar/         # Navigation sidebar
-│   │   │   ├── TopBar/          # Application header
-│   │   │   └── Loading/         # Loading screens
-│   │   ├── contexts/            # React contexts for state
-│   │   │   ├── AppContext.js    # Global app state
-│   │   │   └── SocketContext.js # WebSocket communication
-│   │   ├── pages/               # Main application pages
-│   │   │   ├── Dashboard/       # Overview dashboard
-│   │   │   ├── ChatInterface/   # AI chat interface
-│   │   │   ├── ProjectWizard/   # Project creation wizard
-│   │   │   ├── ProjectBrowser/  # Project management
-│   │   │   ├── WorkspaceManager/# File system interface
-│   │   │   ├── ModelConfiguration/# AI model settings
-│   │   │   └── Settings/        # User preferences
-│   │   ├── App.js              # Main app component
-│   │   ├── index.js            # React entry point
-│   │   └── index.css           # Global styles
-│   └── package.json            # Dependencies and scripts
-├── backend/                     # Python WebSocket server
-│   ├── server.py               # Main server file
-│   └── requirements.txt        # Python dependencies
-├── interpreter/                 # Enhanced Open Interpreter
-│   ├── core/
-│   │   ├── cursor/             # Cursor integration
-│   │   └── grok_cursor_workflow.py # Workflow orchestration
-│   └── ...                     # Original Open Interpreter files
-└── README.md                   # This file
-```
-
-## 🎨 UI Components
+## 🎯 Core Components
 
 ### Dashboard
-- System status overview
-- Recent projects and activity
-- Quick action buttons
-- Activity charts and analytics
+- **System Status** - Real-time server and AI model status
+- **Activity Overview** - Recent projects and chat activity
+- **Quick Actions** - Fast access to common tasks
+- **Performance Metrics** - CPU, memory, and disk usage
 
-### Chat Interface
-- Real-time messaging with AI
-- Code execution and output display
-- Markdown and syntax highlighting
-- Special commands for Grok workflows
-- Chat history and sessions
+### AI Chat Interface
+- **Multi-Model Support** - Switch between Grok, GPT-4, Claude, and more
+- **Code Generation** - AI-powered code creation with syntax highlighting
+- **Special Commands** - Use `/grok-project` and `/grok-outline` for specific tasks
+- **Conversation History** - Persistent chat sessions
 
 ### Project Wizard
-- Step-by-step project creation
-- Technology stack selection
-- Feature configuration
-- AI-generated project outlines
-- Automatic Cursor integration
+- **Technology Selection** - Choose from popular frameworks and languages
+- **Feature Configuration** - Select specific features for your project
+- **AI-Powered Outline** - Generate comprehensive project plans
+- **Automatic Setup** - Create and configure projects with one click
 
-### Project Browser
-- Grid/list view of projects
-- Project search and filtering
-- Quick actions (open, delete, clone)
-- Project statistics
+### Workspace Manager
+- **File Browser** - Navigate and manage project files
+- **Project Overview** - View all active projects
+- **Integration Status** - Monitor Cursor and AI connections
 
 ## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# API Keys
+OPENROUTER_API_KEY=your_openrouter_key_here
+XAI_API_KEY=your_xai_key_here
+OPENAI_API_KEY=your_openai_key_here
+ANTHROPIC_API_KEY=your_anthropic_key_here
+
+# Server Configuration
+DEFAULT_MODEL=grok-3-beta
+SECRET_KEY=your-secret-key-here
+
+# Development
+NODE_ENV=development
+```
 
 ### Model Configuration
 
 The UI supports multiple AI models:
 
-```javascript
-// Available models in the UI
-const models = [
-  'grok-beta',          // Grok Beta
-  'grok-3-beta',        // Grok 3 Beta  
-  'grok-3-mini-beta',   // Grok 3 Mini
-  'gpt-4',              // OpenAI GPT-4
-  'gpt-4o',             // OpenAI GPT-4 Omni
-  'claude-3.5-sonnet',  // Anthropic Claude
-];
-```
+- **Grok Models**: `grok-3-beta`, `grok-beta`, `grok-3-mini-beta`
+- **OpenAI Models**: `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-3.5-turbo`
+- **Anthropic Models**: `claude-3-opus`, `claude-3-sonnet`, `claude-3-haiku`
 
-### Workspace Configuration
+## 📱 User Interface
 
-```javascript
-// Default workspace settings
-const workspace = {
-  defaultPath: '~/projects',
-  autoSave: true,
-  autoOpenInCursor: true,
-  confirmBeforeRun: true,
-};
-```
+### Navigation
+- **Dashboard** - Main overview and system status
+- **Chat** - AI conversation interface
+- **Projects** - Project wizard and browser
+- **Workspace** - File and project management
+- **Settings** - Configuration and preferences
+- **Models** - AI model selection and configuration
 
-## 🚀 Usage Examples
+### Theme Support
+- **Light Theme** - Clean, professional appearance
+- **Dark Theme** - Comfortable for extended use
+- **System Theme** - Automatic theme detection
 
-### Creating a Project with Grok
-
-1. Navigate to the **Project Wizard**
-2. Enter project details and description
-3. Select technology stack and features
-4. Click **"Generate Outline with Grok"**
-5. Review the AI-generated outline
-6. Click **"Create Project"** to implement
-
-### Chat Commands
-
-The chat interface supports special commands:
-
-```bash
-# Create a complete project
-/grok-project Create a React todo app with authentication
-
-# Generate project outline only
-/grok-outline Build a Python API server with FastAPI
-
-# Regular conversation
-Help me understand React hooks
-```
-
-### API Integration
-
-The frontend communicates with the backend via WebSocket:
-
-```javascript
-// Example: Send a chat message
-socket.emit('chat_message', {
-  content: 'Hello, AI!',
-  model: 'grok-3-beta'
-});
-
-// Example: Create a project
-socket.emit('create_grok_project', {
-  description: 'Build a modern web app',
-  options: {
-    workspace: '~/projects',
-    technology: 'react',
-    features: ['auth', 'database']
-  }
-});
-```
+### Responsive Design
+- **Mobile Support** - Optimized for tablets and phones
+- **Adaptive Layout** - Adjusts to different screen sizes
+- **Touch-Friendly** - Optimized for touch interactions
 
 ## 🛠️ Development
 
-### Available Scripts
+### Project Structure
 
 ```
+ui/
+├── public/
+│   ├── index.html
+│   └── manifest.json
+├── src/
+│   ├── components/         # Reusable UI components
+│   │   ├── Loading/
+│   │   ├── Sidebar/
+│   │   └── TopBar/
+│   ├── pages/              # Main application pages
+│   │   ├── Dashboard/
+│   │   ├── ChatInterface/
+│   │   ├── ProjectWizard/
+│   │   └── ...
+│   ├── contexts/           # React contexts for state management
+│   │   ├── AppContext.js
+│   │   └── SocketContext.js
+│   ├── App.js              # Main application component
+│   └── index.js            # React entry point
+├── package.json
+└── README.md
+```
+
+### State Management
+
+The UI uses React Context for state management:
+
+- **AppContext** - Global application state, user settings, projects
+- **SocketContext** - WebSocket connection and real-time communication
+
+### API Integration
+
+The frontend communicates with the backend via:
+
+- **HTTP REST API** - Configuration and status endpoints
+- **WebSocket** - Real-time chat and updates
+- **Event-Driven** - Reactive updates based on backend events
+
+## 🔄 WebSocket Events
+
+### Client → Server
+- `chat_message` - Send message to AI
+- `configure_model` - Change AI model settings
+- `get_system_info` - Request system information
+
+### Server → Client
+- `connection_established` - Initial connection data
+- `ai_response_chunk` - Streaming AI responses
+- `ai_response_complete` - Response finished
+- `project_created` - Project generation complete
+- `system_info` - System status update
+
+## 🎨 Customization
+
+### Themes
+
+Customize the appearance by modifying theme files:
+
+```javascript
+// src/theme.js
+export const lightTheme = {
+  palette: {
+    primary: { main: '#7C3AED' },    // Grok purple
+    secondary: { main: '#06B6D4' },   // Cursor blue
+    // ... other colors
+  }
+};
+```
+
+### Components
+
+Add custom components in the `src/components/` directory:
+
+```javascript
+// src/components/MyComponent/MyComponent.js
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+
+const MyComponent = () => {
+  return (
+    <Box>
+      <Typography variant="h6">Custom Component</Typography>
+    </Box>
+  );
+};
+
+export default MyComponent;
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Connection Failed**
+   - Ensure the backend server is running on port 8080
+   - Check firewall settings
+   - Verify WebSocket support in your browser
+
+2. **AI Models Not Working**
+   - Verify API keys are set correctly
+   - Check model availability in your region
+   - Ensure sufficient API credits
+
+3. **Project Creation Fails**
+   - Verify Cursor is installed and accessible
+   - Check workspace permissions
+   - Ensure sufficient disk space
+
+### Debug Mode
+
+Enable verbose logging:
+
+```bash
+# Start server with debug mode
+grok-server --debug
+
+# Start UI with debug logging
+REACT_APP_DEBUG=true npm start
+```
+
+## � API Documentation
+
+### REST Endpoints
+
+- `GET /` - Server information
+- `GET /health` - Health check
+- `GET /status` - System status
+- `GET /models` - Available AI models
+
+### WebSocket Events
+
+See the full event documentation in the source code comments.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+### Development Setup
+
+```bash
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start development server
+npm start
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+## � Libraries Used
+
+- **React** 18.2.0 - UI framework
+- **Material-UI** 5.x - Component library
+- **Socket.IO** - WebSocket communication
+- **React Router** - Navigation
+- **Prism.js** - Code syntax highlighting
+- **Recharts** - Data visualization
+
+## 🔐 Security
+
+- **API Key Protection** - Keys are stored server-side only
+- **Input Validation** - All user inputs are sanitized
+- **CORS Protection** - Configured for development and production
+- **Rate Limiting** - Prevents API abuse
+
+## 🚀 Deployment
+
+### Production Build
+
+```bash
+# Build the UI
+npm run build
+
+# Serve static files
+npm install -g serve
+serve -s build -l 3000
+```
+
+### Docker Deployment
+
+```dockerfile
+# Dockerfile for UI
+FROM node:16-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 📊 Performance
+
+- **Bundle Size** - Optimized for fast loading
+- **Code Splitting** - Lazy loading for better performance
+- **Caching** - Efficient resource caching
+- **WebSocket** - Real-time updates without polling
+
+## 🔗 Links
+
+- **Grokit Documentation** - [grokit.readthedocs.io](https://grokit.readthedocs.io)
+- **Grok AI** - [x.ai](https://x.ai)
+- **Cursor Editor** - [cursor.sh](https://cursor.sh)
+- **Material-UI** - [mui.com](https://mui.com)
+
+---
+
+Built with ❤️ by the Grok'ed-Interpreter community

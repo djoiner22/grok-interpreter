@@ -1,454 +1,470 @@
 #!/usr/bin/env python3
 """
-Open Interpreter WebSocket API Server
+Grok'ed-Interpreter WebSocket Server
 
-This server provides a WebSocket interface for the React frontend to communicate
-with the Open Interpreter Python backend, including Grok-Cursor integration.
+This server provides a WebSocket-based interface for the Grok'ed-Interpreter,
+enabling real-time communication between the React frontend and the interpreter core.
 """
 
 import os
 import sys
+import logging
 import json
-import time
 import asyncio
-import threading
+import traceback
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
-# Add the parent directory to the path to import interpreter
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-# Flask and SocketIO
 from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
 
-# Open Interpreter
-from interpreter import interpreter
-from interpreter.core.grok_cursor_workflow import GrokCursorWorkflow
+# Add the project root to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'open-interpreter-secret-key'
+try:
+    from interpreter import interpreter
+    from interpreter.core.grok_cursor_workflow import GrokCursorWorkflow
+    from interpreter.core.cursor.cursor_client import CursorClient
+except ImportError as e:
+    print(f"Error importing interpreter modules: {e}")
+    print("Please ensure you're running this from the project root directory")
+    sys.exit(1)
 
-# Enable CORS for all domains on all routes
-CORS(app, resources={
-    r"/*": {
-        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-        "methods": ["GET", "POST"],
-        "allow_headers": ["Content-Type"]
-    }
-})
-
-# Initialize SocketIO with CORS
-socketio = SocketIO(
-    app,
-    cors_allowed_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    async_mode='threading'
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('grokit_server.log'),
+        logging.StreamHandler()
+    ]
 )
+logger = logging.getLogger(__name__)
 
-# Global state
-connected_clients = set()
-current_sessions = {}
-workflow_manager = None
-
-def initialize_interpreter():
-    """Initialize the Open Interpreter with default settings."""
-    global workflow_manager
-    
-    try:
-        # Set up basic interpreter configuration
-        interpreter.auto_run = True
-        interpreter.local = True
-        interpreter.model = "grok-3-beta"  # Default to Grok
+class GrokitServer:
+    def __init__(self):
+        self.app = Flask(__name__)
+        self.app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'grokit-secret-key-change-in-production')
         
-        # Initialize the Grok-Cursor workflow manager
-        workflow_manager = GrokCursorWorkflow(interpreter)
+        # Enable CORS for all routes
+        CORS(self.app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
         
-        print("✅ Open Interpreter initialized successfully")
-        print(f"📍 Model: {interpreter.model}")
-        print(f"🔧 Auto-run: {interpreter.auto_run}")
-        print(f"🏠 Local mode: {interpreter.local}")
+        # Initialize SocketIO with CORS settings
+        self.socketio = SocketIO(
+            self.app,
+            cors_allowed_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+            logger=True,
+            engineio_logger=True,
+            async_mode='eventlet'
+        )
         
-        return True
-    except Exception as e:
-        print(f"❌ Failed to initialize Open Interpreter: {e}")
-        return False
-
-def emit_to_client(sid, event, data):
-    """Safely emit data to a specific client."""
-    try:
-        socketio.emit(event, data, room=sid)
-    except Exception as e:
-        print(f"Error emitting to client {sid}: {e}")
-
-def emit_to_all(event, data):
-    """Safely emit data to all connected clients."""
-    try:
-        socketio.emit(event, data)
-    except Exception as e:
-        print(f"Error emitting to all clients: {e}")
-
-@app.route('/api/health')
-def health_check():
-    """Health check endpoint."""
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.now().isoformat(),
-        'interpreter_ready': workflow_manager is not None,
-        'connected_clients': len(connected_clients)
-    })
-
-@app.route('/api/status')
-def get_status():
-    """Get system status."""
-    return jsonify({
-        'interpreter': {
-            'model': getattr(interpreter, 'model', 'unknown'),
-            'auto_run': getattr(interpreter, 'auto_run', False),
-            'local': getattr(interpreter, 'local', True),
-        },
-        'workflow_manager': workflow_manager is not None,
-        'connected_clients': len(connected_clients),
-        'active_sessions': len(current_sessions)
-    })
-
-@socketio.on('connect')
-def handle_connect():
-    """Handle client connection."""
-    client_id = request.sid
-    connected_clients.add(client_id)
-    current_sessions[client_id] = {
-        'id': client_id,
-        'connected_at': datetime.now().isoformat(),
-        'messages': [],
-        'model': interpreter.model if hasattr(interpreter, 'model') else 'grok-3-beta'
-    }
+        # Initialize components
+        self.interpreter = interpreter
+        self.workflow = GrokCursorWorkflow(interpreter)
+        self.cursor_client = CursorClient()
+        
+        # Store active connections
+        self.active_connections: Dict[str, Any] = {}
+        
+        # Configure interpreter
+        self.setup_interpreter()
+        
+        # Register routes and event handlers
+        self.register_routes()
+        self.register_socket_events()
+        
+        logger.info("Grok'ed-Interpreter server initialized successfully")
     
-    print(f"🔌 Client connected: {client_id}")
-    print(f"👥 Total connected clients: {len(connected_clients)}")
+    def setup_interpreter(self):
+        """Configure the interpreter with default settings"""
+        # Set up default model (can be overridden via environment variables)
+        default_model = os.environ.get('DEFAULT_MODEL', 'gpt-4')
+        self.interpreter.llm.model = default_model
+        
+        # Configure API keys
+        if os.environ.get('OPENAI_API_KEY'):
+            self.interpreter.llm.api_key = os.environ.get('OPENAI_API_KEY')
+        
+        if os.environ.get('ANTHROPIC_API_KEY'):
+            self.interpreter.llm.api_key = os.environ.get('ANTHROPIC_API_KEY')
+        
+        if os.environ.get('OPENROUTER_API_KEY'):
+            self.interpreter.llm.api_key = os.environ.get('OPENROUTER_API_KEY')
+            self.interpreter.llm.api_base = "https://openrouter.ai/api/v1"
+        
+        # Configure interpreter settings
+        self.interpreter.auto_run = False  # Always ask for confirmation
+        self.interpreter.offline = False   # Enable online features
+        
+        logger.info(f"Interpreter configured with model: {self.interpreter.llm.model}")
     
-    # Send welcome message
-    emit('chat_message', {
-        'content': 'Welcome to Open Interpreter! I\'m ready to help you with coding, project creation, and more.',
-        'type': 'text',
-        'metadata': {
-            'model': interpreter.model if hasattr(interpreter, 'model') else 'grok-3-beta',
-            'timestamp': datetime.now().isoformat()
-        }
-    })
-    
-    # Send current status
-    emit('health_status', {
-        'status': 'connected',
-        'interpreter_ready': workflow_manager is not None,
-        'model': interpreter.model if hasattr(interpreter, 'model') else 'grok-3-beta'
-    })
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    """Handle client disconnection."""
-    client_id = request.sid
-    connected_clients.discard(client_id)
-    current_sessions.pop(client_id, None)
-    
-    print(f"🔌 Client disconnected: {client_id}")
-    print(f"👥 Total connected clients: {len(connected_clients)}")
-
-@socketio.on('chat_message')
-def handle_chat_message(data):
-    """Handle regular chat messages."""
-    client_id = request.sid
-    message_content = data.get('content', '')
-    model = data.get('model', interpreter.model)
-    
-    if not message_content.strip():
-        emit('chat_error', {'message': 'Empty message received'})
-        return
-    
-    # Store user message in session
-    if client_id in current_sessions:
-        current_sessions[client_id]['messages'].append({
-            'role': 'user',
-            'content': message_content,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    print(f"💬 Chat message from {client_id}: {message_content[:100]}...")
-    
-    def process_message():
-        try:
-            emit_to_client(client_id, 'chat_typing', {'typing': True})
-            
-            # Set the model if different
-            if hasattr(interpreter, 'model') and interpreter.model != model:
-                interpreter.model = model
-                print(f"🔄 Switched model to: {model}")
-            
-            # Process the message with Open Interpreter
-            response = ""
-            for chunk in interpreter.chat(message_content, stream=True):
-                if isinstance(chunk, dict):
-                    if chunk.get('type') == 'message':
-                        response += chunk.get('content', '')
-                    elif chunk.get('type') == 'code':
-                        # Handle code execution
-                        emit_to_client(client_id, 'code_output', {
-                            'output': chunk.get('content', ''),
-                            'language': chunk.get('format', 'python'),
-                            'exitCode': 0
-                        })
-                else:
-                    response += str(chunk)
-            
-            # Send the complete response
-            emit_to_client(client_id, 'chat_message', {
-                'content': response,
-                'type': 'text',
-                'metadata': {
-                    'model': model,
-                    'timestamp': datetime.now().isoformat()
+    def register_routes(self):
+        """Register HTTP routes"""
+        
+        @self.app.route('/')
+        def index():
+            return jsonify({
+                'name': 'Grok\'ed-Interpreter Server',
+                'version': '1.0.0',
+                'status': 'running',
+                'description': 'WebSocket server for Grok\'ed-Interpreter UI',
+                'endpoints': {
+                    'health': '/health',
+                    'status': '/status',
+                    'models': '/models',
+                    'websocket': '/socket.io'
                 }
             })
+        
+        @self.app.route('/health')
+        def health_check():
+            return jsonify({
+                'status': 'healthy',
+                'timestamp': datetime.now().isoformat(),
+                'server': 'Grok\'ed-Interpreter',
+                'version': '1.0.0'
+            })
+        
+        @self.app.route('/status')
+        def status():
+            return jsonify({
+                'server': 'Grok\'ed-Interpreter',
+                'status': 'running',
+                'active_connections': len(self.active_connections),
+                'interpreter': {
+                    'model': self.interpreter.llm.model,
+                    'provider': getattr(self.interpreter.llm, 'provider', 'unknown'),
+                    'auto_run': self.interpreter.auto_run,
+                    'offline': self.interpreter.offline
+                },
+                'features': {
+                    'grok_integration': True,
+                    'cursor_automation': True,
+                    'project_wizard': True,
+                    'code_execution': True
+                }
+            })
+        
+        @self.app.route('/models')
+        def get_models():
+            """Get available models"""
+            models = [
+                # Grok models
+                {'id': 'grok-beta', 'name': 'Grok Beta', 'provider': 'xai', 'type': 'chat'},
+                {'id': 'grok-3-beta', 'name': 'Grok 3 Beta', 'provider': 'xai', 'type': 'chat'},
+                {'id': 'grok-3-mini-beta', 'name': 'Grok 3 Mini Beta', 'provider': 'xai', 'type': 'chat'},
+                
+                # OpenAI models
+                {'id': 'gpt-4', 'name': 'GPT-4', 'provider': 'openai', 'type': 'chat'},
+                {'id': 'gpt-4-turbo', 'name': 'GPT-4 Turbo', 'provider': 'openai', 'type': 'chat'},
+                {'id': 'gpt-4o', 'name': 'GPT-4O', 'provider': 'openai', 'type': 'chat'},
+                {'id': 'gpt-3.5-turbo', 'name': 'GPT-3.5 Turbo', 'provider': 'openai', 'type': 'chat'},
+                
+                # Anthropic models
+                {'id': 'claude-3-opus', 'name': 'Claude 3 Opus', 'provider': 'anthropic', 'type': 'chat'},
+                {'id': 'claude-3-sonnet', 'name': 'Claude 3 Sonnet', 'provider': 'anthropic', 'type': 'chat'},
+                {'id': 'claude-3-haiku', 'name': 'Claude 3 Haiku', 'provider': 'anthropic', 'type': 'chat'},
+                {'id': 'claude-3.5-sonnet', 'name': 'Claude 3.5 Sonnet', 'provider': 'anthropic', 'type': 'chat'},
+            ]
             
-            # Store assistant message in session
-            if client_id in current_sessions:
-                current_sessions[client_id]['messages'].append({
-                    'role': 'assistant',
-                    'content': response,
-                    'timestamp': datetime.now().isoformat()
+            return jsonify({
+                'models': models,
+                'current_model': self.interpreter.llm.model,
+                'providers': ['xai', 'openai', 'anthropic']
+            })
+    
+    def register_socket_events(self):
+        """Register WebSocket event handlers"""
+        
+        @self.socketio.on('connect')
+        def handle_connect():
+            session_id = request.sid
+            self.active_connections[session_id] = {
+                'connected_at': datetime.now().isoformat(),
+                'last_activity': datetime.now().isoformat()
+            }
+            
+            logger.info(f"Client connected: {session_id}")
+            
+            # Send initial connection data
+            emit('connection_established', {
+                'session_id': session_id,
+                'server': 'Grok\'ed-Interpreter',
+                'version': '1.0.0',
+                'timestamp': datetime.now().isoformat(),
+                'features': {
+                    'grok_integration': True,
+                    'cursor_automation': True,
+                    'project_wizard': True,
+                    'code_execution': True
+                }
+            })
+        
+        @self.socketio.on('disconnect')
+        def handle_disconnect():
+            session_id = request.sid
+            if session_id in self.active_connections:
+                del self.active_connections[session_id]
+            logger.info(f"Client disconnected: {session_id}")
+        
+        @self.socketio.on('chat_message')
+        def handle_chat_message(data):
+            """Handle chat messages from the frontend"""
+            session_id = request.sid
+            message = data.get('message', '')
+            
+            if not message:
+                emit('error', {'message': 'Empty message received'})
+                return
+            
+            try:
+                # Update last activity
+                if session_id in self.active_connections:
+                    self.active_connections[session_id]['last_activity'] = datetime.now().isoformat()
+                
+                # Check for special commands
+                if message.startswith('/grok-project'):
+                    self.handle_grok_project_command(message[14:].strip())
+                elif message.startswith('/grok-outline'):
+                    self.handle_grok_outline_command(message[14:].strip())
+                elif message.startswith('/cursor-open'):
+                    self.handle_cursor_open_command(message[13:].strip())
+                else:
+                    # Regular chat message
+                    self.handle_regular_chat(message)
+                    
+            except Exception as e:
+                logger.error(f"Error handling chat message: {e}")
+                logger.error(traceback.format_exc())
+                emit('error', {
+                    'message': 'An error occurred while processing your message',
+                    'details': str(e)
                 })
-            
-        except Exception as e:
-            print(f"❌ Error processing chat message: {e}")
-            emit_to_client(client_id, 'chat_error', {
-                'message': f'Error processing message: {str(e)}'
-            })
-        finally:
-            emit_to_client(client_id, 'chat_typing', {'typing': False})
-    
-    # Run in a separate thread to avoid blocking
-    threading.Thread(target=process_message, daemon=True).start()
-
-@socketio.on('create_grok_project')
-def handle_create_grok_project(data):
-    """Handle Grok project creation requests."""
-    client_id = request.sid
-    description = data.get('description', '')
-    options = data.get('options', {})
-    
-    if not description.strip():
-        emit('project_error', {'message': 'Project description is required'})
-        return
-    
-    print(f"🚀 Creating Grok project for {client_id}: {description}")
-    
-    def create_project():
-        try:
-            if not workflow_manager:
-                raise Exception("Workflow manager not initialized")
-            
-            # Emit progress update
-            emit_to_client(client_id, 'workflow_progress', {
-                'step': 'outline_generation',
-                'message': 'Generating project outline with Grok...'
-            })
-            
-            # Create the project using the workflow manager
-            result = workflow_manager.create_project_with_grok(
-                description,
-                workspace_path=options.get('workspace', '~/projects'),
-                model=options.get('model', 'grok-3-beta')
-            )
-            
-            if result['success']:
-                emit_to_client(client_id, 'project_created', {
-                    'name': result.get('project_name', 'New Project'),
-                    'path': result.get('project_path', ''),
-                    'description': description,
-                    'outline': result.get('outline', ''),
-                    'timestamp': datetime.now().isoformat()
+        
+        @self.socketio.on('configure_model')
+        def handle_model_configuration(data):
+            """Handle model configuration requests"""
+            try:
+                model = data.get('model')
+                api_key = data.get('api_key')
+                api_base = data.get('api_base')
+                
+                if model:
+                    self.interpreter.llm.model = model
+                
+                if api_key:
+                    self.interpreter.llm.api_key = api_key
+                
+                if api_base:
+                    self.interpreter.llm.api_base = api_base
+                
+                emit('model_configured', {
+                    'model': self.interpreter.llm.model,
+                    'api_base': getattr(self.interpreter.llm, 'api_base', None),
+                    'status': 'success'
                 })
                 
-                emit_to_client(client_id, 'chat_message', {
-                    'content': f"✅ Project created successfully!\n\n**Project:** {result.get('project_name', 'New Project')}\n**Path:** {result.get('project_path', '')}\n\n{result.get('outline', '')}",
-                    'type': 'project_success',
-                    'metadata': {
-                        'project_path': result.get('project_path', ''),
+                logger.info(f"Model configured: {model}")
+                
+            except Exception as e:
+                logger.error(f"Error configuring model: {e}")
+                emit('error', {
+                    'message': 'Failed to configure model',
+                    'details': str(e)
+                })
+        
+        @self.socketio.on('get_system_info')
+        def handle_system_info():
+            """Get system information"""
+            try:
+                import platform
+                import psutil
+                
+                system_info = {
+                    'system': platform.system(),
+                    'platform': platform.platform(),
+                    'python_version': platform.python_version(),
+                    'cpu_count': psutil.cpu_count(),
+                    'memory_total': psutil.virtual_memory().total,
+                    'memory_available': psutil.virtual_memory().available,
+                    'disk_usage': psutil.disk_usage('/').percent,
+                    'grokit_version': '1.0.0'
+                }
+                
+                emit('system_info', system_info)
+                
+            except Exception as e:
+                logger.error(f"Error getting system info: {e}")
+                emit('error', {
+                    'message': 'Failed to get system information',
+                    'details': str(e)
+                })
+    
+    def handle_regular_chat(self, message: str):
+        """Handle regular chat messages"""
+        try:
+            # Emit thinking status
+            emit('ai_thinking', {'status': 'thinking', 'message': 'Processing your request...'})
+            
+            # Process the message with the interpreter
+            responses = []
+            
+            # Use the interpreter to process the message
+            result = self.interpreter.chat(message, display=False, stream=False)
+            
+            # Handle different response types
+            if result:
+                # If result is a string, emit it as a message
+                if isinstance(result, str):
+                    responses.append(result)
+                    emit('ai_response_chunk', {
+                        'content': result,
+                        'type': 'message',
                         'timestamp': datetime.now().isoformat()
-                    }
+                    })
+                elif isinstance(result, list):
+                    # If result is a list of messages, process each
+                    for item in result:
+                        if isinstance(item, dict):
+                            content = item.get('content', '')
+                            if content:
+                                responses.append(content)
+                                emit('ai_response_chunk', {
+                                    'content': content,
+                                    'type': 'message',
+                                    'timestamp': datetime.now().isoformat()
+                                })
+                        elif isinstance(item, str):
+                            responses.append(item)
+                            emit('ai_response_chunk', {
+                                'content': item,
+                                'type': 'message',
+                                'timestamp': datetime.now().isoformat()
+                            })
+            
+            # Emit completion
+            emit('ai_response_complete', {
+                'timestamp': datetime.now().isoformat(),
+                'message_count': len(responses)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in regular chat: {e}")
+            logger.error(traceback.format_exc())
+            emit('error', {
+                'message': 'An error occurred while processing your message',
+                'details': str(e)
+            })
+    
+    def handle_grok_project_command(self, project_description: str):
+        """Handle Grok project creation command"""
+        try:
+            emit('ai_thinking', {'status': 'thinking', 'message': 'Creating project with Grok...'})
+            
+            # Use the workflow to create a project
+            result = self.workflow.run_complete_workflow(
+                project_description,
+                use_grok=True
+            )
+            
+            emit('project_created', {
+                'project_name': result.get('summary', {}).get('project_name'),
+                'project_path': result.get('summary', {}).get('project_path'),
+                'files_created': result.get('files_created', []),
+                'outline': result.get('outline', {}).get('raw_outline'),
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        except Exception as e:
+            logger.error(f"Error creating Grok project: {e}")
+            emit('error', {
+                'message': 'Failed to create project with Grok',
+                'details': str(e)
+            })
+    
+    def handle_grok_outline_command(self, project_description: str):
+        """Handle Grok outline generation command"""
+        try:
+            emit('ai_thinking', {'status': 'thinking', 'message': 'Generating project outline with Grok...'})
+            
+            # Generate outline using Grok
+            outline = self.workflow.generate_project_outline(project_description)
+            
+            emit('project_outline_generated', {
+                'outline': outline,
+                'description': project_description,
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        except Exception as e:
+            logger.error(f"Error generating Grok outline: {e}")
+            emit('error', {
+                'message': 'Failed to generate project outline with Grok',
+                'details': str(e)
+            })
+    
+    def handle_cursor_open_command(self, project_path: str):
+        """Handle Cursor open command"""
+        try:
+            emit('ai_thinking', {'status': 'thinking', 'message': 'Opening project in Cursor...'})
+            
+            # Open project in Cursor
+            success = self.cursor_client.open_project_in_cursor(project_path)
+            
+            if success:
+                emit('cursor_opened', {
+                    'project_path': project_path,
+                    'timestamp': datetime.now().isoformat()
                 })
             else:
-                raise Exception(result.get('error', 'Unknown error'))
+                emit('error', {
+                    'message': 'Failed to open project in Cursor',
+                    'details': 'Cursor may not be installed or accessible'
+                })
                 
         except Exception as e:
-            print(f"❌ Error creating Grok project: {e}")
-            emit_to_client(client_id, 'project_error', {
-                'message': f'Failed to create project: {str(e)}'
-            })
-            
-            emit_to_client(client_id, 'chat_message', {
-                'content': f"❌ Failed to create project: {str(e)}",
-                'type': 'error',
-                'metadata': {
-                    'timestamp': datetime.now().isoformat()
-                }
+            logger.error(f"Error opening Cursor: {e}")
+            emit('error', {
+                'message': 'Failed to open project in Cursor',
+                'details': str(e)
             })
     
-    # Run in a separate thread
-    threading.Thread(target=create_project, daemon=True).start()
-
-@socketio.on('generate_grok_outline')
-def handle_generate_grok_outline(data):
-    """Handle Grok outline generation requests."""
-    client_id = request.sid
-    description = data.get('description', '')
-    options = data.get('options', {})
-    
-    if not description.strip():
-        emit('project_error', {'message': 'Project description is required'})
-        return
-    
-    print(f"📋 Generating Grok outline for {client_id}: {description}")
-    
-    def generate_outline():
+    def run(self, host='0.0.0.0', port=8080, debug=False):
+        """Run the server"""
+        logger.info(f"Starting Grok'ed-Interpreter server on {host}:{port}")
+        logger.info("Frontend should be available at http://localhost:3000")
+        logger.info("Backend API available at http://localhost:8080")
+        
         try:
-            if not workflow_manager:
-                raise Exception("Workflow manager not initialized")
-            
-            # Generate outline using the workflow manager
-            outline = workflow_manager.generate_outline_with_grok(
-                description,
-                model=options.get('model', 'grok-3-beta')
+            self.socketio.run(
+                self.app,
+                host=host,
+                port=port,
+                debug=debug,
+                use_reloader=False,
+                log_output=True
             )
-            
-            emit_to_client(client_id, 'grok_outline_generated', {
-                'outline': outline,
-                'model': options.get('model', 'grok-3-beta'),
-                'structured': True
-            })
-            
-            emit_to_client(client_id, 'chat_message', {
-                'content': f"📋 **Project Outline Generated**\n\n{outline}",
-                'type': 'outline',
-                'metadata': {
-                    'model': options.get('model', 'grok-3-beta'),
-                    'timestamp': datetime.now().isoformat()
-                }
-            })
-            
+        except KeyboardInterrupt:
+            logger.info("Server shutting down...")
         except Exception as e:
-            print(f"❌ Error generating Grok outline: {e}")
-            emit_to_client(client_id, 'project_error', {
-                'message': f'Failed to generate outline: {str(e)}'
-            })
-    
-    # Run in a separate thread
-    threading.Thread(target=generate_outline, daemon=True).start()
-
-@socketio.on('set_model')
-def handle_set_model(data):
-    """Handle model configuration changes."""
-    client_id = request.sid
-    model = data.get('model', '')
-    
-    if not model:
-        emit('model_error', {'message': 'Model name is required'})
-        return
-    
-    try:
-        # Update interpreter model
-        interpreter.model = model
-        
-        # Update session model
-        if client_id in current_sessions:
-            current_sessions[client_id]['model'] = model
-        
-        print(f"🔄 Model changed to: {model}")
-        
-        emit_to_client(client_id, 'model_changed', {'model': model})
-        emit_to_client(client_id, 'chat_message', {
-            'content': f"✅ Model switched to: {model}",
-            'type': 'system',
-            'metadata': {
-                'timestamp': datetime.now().isoformat()
-            }
-        })
-        
-    except Exception as e:
-        print(f"❌ Error setting model: {e}")
-        emit_to_client(client_id, 'model_error', {
-            'message': f'Failed to set model: {str(e)}'
-        })
-
-@socketio.on('health_check')
-def handle_health_check():
-    """Handle health check requests."""
-    client_id = request.sid
-    
-    status = {
-        'status': 'healthy' if workflow_manager else 'degraded',
-        'interpreter_ready': workflow_manager is not None,
-        'model': getattr(interpreter, 'model', 'unknown'),
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    emit_to_client(client_id, 'health_status', status)
-
-@socketio.on('get_workspace_files')
-def handle_get_workspace_files(data):
-    """Handle workspace file listing requests."""
-    client_id = request.sid
-    workspace_path = data.get('path', '~/projects')
-    
-    try:
-        # Expand user path
-        path = Path(workspace_path).expanduser()
-        files = []
-        
-        if path.exists() and path.is_dir():
-            for item in path.iterdir():
-                files.append({
-                    'name': item.name,
-                    'path': str(item),
-                    'type': 'directory' if item.is_dir() else 'file',
-                    'size': item.stat().st_size if item.is_file() else 0,
-                    'modified': datetime.fromtimestamp(item.stat().st_mtime).isoformat()
-                })
-        
-        emit_to_client(client_id, 'workspace_updated', {'files': files})
-        
-    except Exception as e:
-        print(f"❌ Error listing workspace files: {e}")
-        emit_to_client(client_id, 'workspace_updated', {'files': []})
+            logger.error(f"Server error: {e}")
+            logger.error(traceback.format_exc())
 
 def run_server():
-    """Run the WebSocket server."""
-    print("🚀 Starting Open Interpreter WebSocket Server...")
-    print("=" * 50)
+    """Entry point for running the server"""
+    import argparse
     
-    # Initialize the interpreter
-    if not initialize_interpreter():
-        print("❌ Failed to initialize interpreter. Server will start but some features may not work.")
+    parser = argparse.ArgumentParser(description='Grok\'ed-Interpreter WebSocket Server')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
+    parser.add_argument('--port', type=int, default=8080, help='Port to bind to')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
     
-    print(f"🌐 Server starting on http://localhost:8080")
-    print(f"🔗 Frontend should connect from http://localhost:3000")
-    print(f"💡 API health check: http://localhost:8080/api/health")
-    print("=" * 50)
+    args = parser.parse_args()
     
-    try:
-        # Run the server
-        socketio.run(
-            app,
-            host='0.0.0.0',
-            port=8080,
-            debug=False,
-            allow_unsafe_werkzeug=True
-        )
-    except KeyboardInterrupt:
-        print("\n👋 Server shutting down...")
-    except Exception as e:
-        print(f"❌ Server error: {e}")
+    # Create and run the server
+    server = GrokitServer()
+    server.run(host=args.host, port=args.port, debug=args.debug)
 
 if __name__ == '__main__':
     run_server()

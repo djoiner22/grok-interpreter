@@ -1,420 +1,406 @@
-<h1 align="center">● Open Interpreter</h1>
+# Grok'ed-Interpreter
 
-<p align="center">
-    <a href="https://discord.gg/Hvz9Axh84z">
-        <img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=flat&logoColor=white"/></a>
-    <a href="docs/README_JA.md"><img src="https://img.shields.io/badge/ドキュメント-日本語-white.svg" alt="JA doc"/></a>
-    <a href="docs/README_ZH.md"><img src="https://img.shields.io/badge/文档-中文版-white.svg" alt="ZH doc"/></a>
-    <a href="docs/README_ES.md"> <img src="https://img.shields.io/badge/Español-white.svg" alt="ES doc"/></a>
-    <a href="docs/README_UK.md"><img src="https://img.shields.io/badge/Українська-white.svg" alt="UK doc"/></a>
-    <a href="docs/README_IN.md"><img src="https://img.shields.io/badge/Hindi-white.svg" alt="IN doc"/></a>
-    <a href="LICENSE"><img src="https://img.shields.io/static/v1?label=license&message=AGPL&color=white&style=flat" alt="License"/></a>
-    <br>
-    <br><a href="https://0ggfznkwh4j.typeform.com/to/G21i9lJ2">Get early access to the desktop app</a>‎ ‎ |‎ ‎ <a href="https://docs.openinterpreter.com/">Documentation</a><br>
-</p>
+[![PyPI version](https://badge.fury.io/py/grokit.svg)](https://badge.fury.io/py/grokit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-> [!NOTE]
-> **Open Interpreter 1.0** is almost here.
->
-> Please help test the [development branch](https://github.com/OpenInterpreter/open-interpreter/tree/development) and share your experience in the [Discord](https://discord.gg/Hvz9Axh84z):
-> ```
-> pip install git+https://github.com/OpenInterpreter/open-interpreter.git@development
-> interpreter --help
-> ```
+**The most powerful AI development platform** - combining the best of Grok AI, Cursor automation, and intelligent code execution in one seamless package.
 
-<br>
-
-<img alt="local_explorer" src="https://github.com/OpenInterpreter/open-interpreter/assets/63927363/d941c3b4-b5ad-4642-992c-40edf31e2e7a">
-
-<br>
-</p>
-<br>
-
-```shell
-pip install open-interpreter
+```bash
+pip install grokit
 ```
 
-> Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
-
-```shell
-interpreter
-```
-
-<br>
-
-**Open Interpreter** lets LLMs run code (Python, Javascript, Shell, and more) locally. You can chat with Open Interpreter through a ChatGPT-like interface in your terminal by running `$ interpreter` after installing.
-
-This provides a natural-language interface to your computer's general-purpose capabilities:
-
-- Create and edit photos, videos, PDFs, etc.
-- Control a Chrome browser to perform research
-- Plot, clean, and analyze large datasets
-- ...etc.
-
-**⚠️ Note: You'll be asked to approve code before it's run.**
-
-<br>
-
-## Demo
-
-https://github.com/OpenInterpreter/open-interpreter/assets/63927363/37152071-680d-4423-9af3-64836a6f7b60
-
-#### An interactive demo is also available on Google Colab:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WKmRXZgsErej2xUriKzxrEAXdxMSgWbb?usp=sharing)
-
-#### Along with an example voice interface, inspired by _Her_:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1NojYGHDgxH6Y1G1oxThEBBb2AtyODBIK)
-
-## Quick Start
-
-```shell
-pip install open-interpreter
-```
-
-### Terminal
-
-After installation, simply run `interpreter`:
-
-```shell
-interpreter
-```
-
-### Python
-
-```python
-from interpreter import interpreter
-
-interpreter.chat("Plot AAPL and META's normalized stock prices") # Executes a single command
-interpreter.chat() # Starts an interactive chat
-```
-
-### GitHub Codespaces
-
-Press the `,` key on this repository's GitHub page to create a codespace. After a moment, you'll receive a cloud virtual machine environment pre-installed with open-interpreter. You can then start interacting with it directly and freely confirm its execution of system commands without worrying about damaging the system.
-
-## Comparison to ChatGPT's Code Interpreter
-
-OpenAI's release of [Code Interpreter](https://openai.com/blog/chatgpt-plugins#code-interpreter) with GPT-4 presents a fantastic opportunity to accomplish real-world tasks with ChatGPT.
-
-However, OpenAI's service is hosted, closed-source, and heavily restricted:
-
-- No internet access.
-- [Limited set of pre-installed packages](https://wfhbrian.com/mastering-chatgpts-code-interpreter-list-of-python-packages/).
-- 100 MB maximum upload, 120.0 second runtime limit.
-- State is cleared (along with any generated files or links) when the environment dies.
+<div align="center">
+  <img src="https://img.shields.io/badge/Grok-Powered-purple?style=for-the-badge&logo=lightning" alt="Grok Powered" />
+  <img src="https://img.shields.io/badge/Cursor-Integrated-blue?style=for-the-badge&logo=cursor" alt="Cursor Integrated" />
+  <img src="https://img.shields.io/badge/AI-Enhanced-green?style=for-the-badge&logo=robot" alt="AI Enhanced" />
+</div>
 
 ---
 
-Open Interpreter overcomes these limitations by running in your local environment. It has full access to the internet, isn't restricted by time or file size, and can utilize any package or library.
+## 🚀 What is Grok'ed-Interpreter?
 
-This combines the power of GPT-4's Code Interpreter with the flexibility of your local development environment.
+Grok'ed-Interpreter (Grokit) is the next evolution of AI-powered development tools. It seamlessly integrates **Grok AI models** with **Cursor editor automation** to provide an unparalleled development experience.
 
-## Commands
+### ✨ Key Features
 
-**Update:** The Generator Update (0.1.5) introduced streaming:
+- 🤖 **Grok AI Integration** - Leverage xAI's powerful Grok models for intelligent code generation
+- ⚡ **Cursor Automation** - Automatic project creation and editor integration
+- 🎯 **Project Wizard** - AI-guided project setup with best practices
+- 💬 **Interactive Chat** - Natural language interface for coding tasks
+- 🌐 **Modern Web UI** - Beautiful React interface with real-time updates
+- 🔧 **Code Execution** - Safe, sandboxed environment for running AI-generated code
+- 📁 **Workspace Management** - Intelligent file and project organization
 
-```python
-message = "What operating system are we on?"
+---
 
-for chunk in interpreter.chat(message, display=False, stream=True):
-  print(chunk)
-```
+## 🏃‍♂️ Quick Start
 
-### Interactive Chat
-
-To start an interactive chat in your terminal, either run `interpreter` from the command line:
-
-```shell
-interpreter
-```
-
-Or `interpreter.chat()` from a .py file:
-
-```python
-interpreter.chat()
-```
-
-**You can also stream each chunk:**
-
-```python
-message = "What operating system are we on?"
-
-for chunk in interpreter.chat(message, display=False, stream=True):
-  print(chunk)
-```
-
-### Programmatic Chat
-
-For more precise control, you can pass messages directly to `.chat(message)`:
-
-```python
-interpreter.chat("Add subtitles to all videos in /videos.")
-
-# ... Streams output to your terminal, completes task ...
-
-interpreter.chat("These look great but can you make the subtitles bigger?")
-
-# ...
-```
-
-### Start a New Chat
-
-In Python, Open Interpreter remembers conversation history. If you want to start fresh, you can reset it:
-
-```python
-interpreter.messages = []
-```
-
-### Save and Restore Chats
-
-`interpreter.chat()` returns a List of messages, which can be used to resume a conversation with `interpreter.messages = messages`:
-
-```python
-messages = interpreter.chat("My name is Killian.") # Save messages to 'messages'
-interpreter.messages = [] # Reset interpreter ("Killian" will be forgotten)
-
-interpreter.messages = messages # Resume chat from 'messages' ("Killian" will be remembered)
-```
-
-### Customize System Message
-
-You can inspect and configure Open Interpreter's system message to extend its functionality, modify permissions, or give it more context.
-
-```python
-interpreter.system_message += """
-Run shell commands with -y so the user doesn't have to confirm them.
-"""
-print(interpreter.system_message)
-```
-
-### Change your Language Model
-
-Open Interpreter uses [LiteLLM](https://docs.litellm.ai/docs/providers/) to connect to hosted language models.
-
-You can change the model by setting the model parameter:
-
-```shell
-interpreter --model gpt-3.5-turbo
-interpreter --model claude-2
-interpreter --model command-nightly
-```
-
-In Python, set the model on the object:
-
-```python
-interpreter.llm.model = "gpt-3.5-turbo"
-```
-
-[Find the appropriate "model" string for your language model here.](https://docs.litellm.ai/docs/providers/)
-
-### Running Open Interpreter locally
-
-#### Terminal
-
-Open Interpreter can use OpenAI-compatible server to run models locally. (LM Studio, jan.ai, ollama etc)
-
-Simply run `interpreter` with the api_base URL of your inference server (for LM studio it is `http://localhost:1234/v1` by default):
-
-```shell
-interpreter --api_base "http://localhost:1234/v1" --api_key "fake_key"
-```
-
-Alternatively you can use Llamafile without installing any third party software just by running
-
-```shell
-interpreter --local
-```
-
-for a more detailed guide check out [this video by Mike Bird](https://www.youtube.com/watch?v=CEs51hGWuGU?si=cN7f6QhfT4edfG5H)
-
-**How to run LM Studio in the background.**
-
-1. Download [https://lmstudio.ai/](https://lmstudio.ai/) then start it.
-2. Select a model then click **↓ Download**.
-3. Click the **↔️** button on the left (below 💬).
-4. Select your model at the top, then click **Start Server**.
-
-Once the server is running, you can begin your conversation with Open Interpreter.
-
-> **Note:** Local mode sets your `context_window` to 3000, and your `max_tokens` to 1000. If your model has different requirements, set these parameters manually (see below).
-
-#### Python
-
-Our Python package gives you more control over each setting. To replicate and connect to LM Studio, use these settings:
-
-```python
-from interpreter import interpreter
-
-interpreter.offline = True # Disables online features like Open Procedures
-interpreter.llm.model = "openai/x" # Tells OI to send messages in OpenAI's format
-interpreter.llm.api_key = "fake_key" # LiteLLM, which we use to talk to LM Studio, requires this
-interpreter.llm.api_base = "http://localhost:1234/v1" # Point this at any OpenAI compatible server
-
-interpreter.chat()
-```
-
-#### Context Window, Max Tokens
-
-You can modify the `max_tokens` and `context_window` (in tokens) of locally running models.
-
-For local mode, smaller context windows will use less RAM, so we recommend trying a much shorter window (~1000) if it's failing / if it's slow. Make sure `max_tokens` is less than `context_window`.
-
-```shell
-interpreter --local --max_tokens 1000 --context_window 3000
-```
-
-### Verbose mode
-
-To help you inspect Open Interpreter we have a `--verbose` mode for debugging.
-
-You can activate verbose mode by using its flag (`interpreter --verbose`), or mid-chat:
-
-```shell
-$ interpreter
-...
-> %verbose true <- Turns on verbose mode
-
-> %verbose false <- Turns off verbose mode
-```
-
-### Interactive Mode Commands
-
-In the interactive mode, you can use the below commands to enhance your experience. Here's a list of available commands:
-
-**Available Commands:**
-
-- `%verbose [true/false]`: Toggle verbose mode. Without arguments or with `true` it
-  enters verbose mode. With `false` it exits verbose mode.
-- `%reset`: Resets the current session's conversation.
-- `%undo`: Removes the previous user message and the AI's response from the message history.
-- `%tokens [prompt]`: (_Experimental_) Calculate the tokens that will be sent with the next prompt as context and estimate their cost. Optionally calculate the tokens and estimated cost of a `prompt` if one is provided. Relies on [LiteLLM's `cost_per_token()` method](https://docs.litellm.ai/docs/completion/token_usage#2-cost_per_token) for estimated costs.
-- `%help`: Show the help message.
-
-### Configuration / Profiles
-
-Open Interpreter allows you to set default behaviors using `yaml` files.
-
-This provides a flexible way to configure the interpreter without changing command-line arguments every time.
-
-Run the following command to open the profiles directory:
-
-```
-interpreter --profiles
-```
-
-You can add `yaml` files there. The default profile is named `default.yaml`.
-
-#### Multiple Profiles
-
-Open Interpreter supports multiple `yaml` files, allowing you to easily switch between configurations:
-
-```
-interpreter --profile my_profile.yaml
-```
-
-## Sample FastAPI Server
-
-The generator update enables Open Interpreter to be controlled via HTTP REST endpoints:
-
-```python
-# server.py
-
-from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
-from interpreter import interpreter
-
-app = FastAPI()
-
-@app.get("/chat")
-def chat_endpoint(message: str):
-    def event_stream():
-        for result in interpreter.chat(message, stream=True):
-            yield f"data: {result}\n\n"
-
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
-
-@app.get("/history")
-def history_endpoint():
-    return interpreter.messages
-```
-
-```shell
-pip install fastapi uvicorn
-uvicorn server:app --reload
-```
-
-You can also start a server identical to the one above by simply running `interpreter.server()`.
-
-## Android
-
-The step-by-step guide for installing Open Interpreter on your Android device can be found in the [open-interpreter-termux repo](https://github.com/MikeBirdTech/open-interpreter-termux).
-
-## Safety Notice
-
-Since generated code is executed in your local environment, it can interact with your files and system settings, potentially leading to unexpected outcomes like data loss or security risks.
-
-**⚠️ Open Interpreter will ask for user confirmation before executing code.**
-
-You can run `interpreter -y` or set `interpreter.auto_run = True` to bypass this confirmation, in which case:
-
-- Be cautious when requesting commands that modify files or system settings.
-- Watch Open Interpreter like a self-driving car, and be prepared to end the process by closing your terminal.
-- Consider running Open Interpreter in a restricted environment like Google Colab or Replit. These environments are more isolated, reducing the risks of executing arbitrary code.
-
-There is **experimental** support for a [safe mode](https://github.com/OpenInterpreter/open-interpreter/blob/main/docs/SAFE_MODE.md) to help mitigate some risks.
-
-## How Does it Work?
-
-Open Interpreter equips a [function-calling language model](https://platform.openai.com/docs/guides/gpt/function-calling) with an `exec()` function, which accepts a `language` (like "Python" or "JavaScript") and `code` to run.
-
-We then stream the model's messages, code, and your system's outputs to the terminal as Markdown.
-
-# Access Documentation Offline
-
-The full [documentation](https://docs.openinterpreter.com/) is accessible on-the-go without the need for an internet connection.
-
-[Node](https://nodejs.org/en) is a pre-requisite:
-
-- Version 18.17.0 or any later 18.x.x version.
-- Version 20.3.0 or any later 20.x.x version.
-- Any version starting from 21.0.0 onwards, with no upper limit specified.
-
-Install [Mintlify](https://mintlify.com/):
+### Installation
 
 ```bash
-npm i -g mintlify@latest
+# Install Grokit
+pip install grokit
+
+# Install with UI support
+pip install grokit[ui]
+
+# Install with all features
+pip install grokit[server,ui,local,os]
 ```
 
-Change into the docs directory and run the appropriate command:
+### Basic Usage
+
+#### Command Line Interface
 
 ```bash
-# Assuming you're at the project's root directory
-cd ./docs
+# Start interactive chat
+grokit
 
-# Run the documentation server
-mintlify dev
+# Create a project with Grok
+grokit --grok-project "Create a React todo app with authentication"
+
+# Generate project outline
+grokit --grok-outline "Build a Python API server with FastAPI"
+
+# Use specific Grok model
+grokit --use-grok --model grok-3-beta
 ```
 
-A new browser window should open. The documentation will be available at [http://localhost:3000](http://localhost:3000) as long as the documentation server is running.
+#### Python API
 
-# Contributing
+```python
+import grokit
 
-Thank you for your interest in contributing! We welcome involvement from the community.
+# Initialize with Grok
+interpreter = grokit.new_interpreter()
+interpreter.llm.model = "grok-3-beta"
 
-Please see our [contributing guidelines](https://github.com/OpenInterpreter/open-interpreter/blob/main/docs/CONTRIBUTING.md) for more details on how to get involved.
+# Generate and execute code
+interpreter.chat("Create a web scraper for news articles")
 
-# Roadmap
+# Create project with Grok-Cursor workflow
+result = interpreter.create_project_with_grok(
+    "Build a modern dashboard with React and Node.js",
+    workspace_path="~/projects",
+    open_in_cursor=True
+)
+```
 
-Visit [our roadmap](https://github.com/OpenInterpreter/open-interpreter/blob/main/docs/ROADMAP.md) to preview the future of Open Interpreter.
+#### Web UI
 
-**Note**: This software is not affiliated with OpenAI.
+```bash
+# Start the web interface
+grok-server
 
-![thumbnail-ncu](https://github.com/OpenInterpreter/open-interpreter/assets/63927363/1b19a5db-b486-41fd-a7a1-fe2028031686)
+# Then open http://localhost:8080 in your browser
+```
 
-> Having access to a junior programmer working at the speed of your fingertips ... can make new workflows effortless and efficient, as well as open the benefits of programming to new audiences.
->
-> — _OpenAI's Code Interpreter Release_
+---
 
-<br>
+## 🎯 Core Workflows
+
+### 1. **Grok Project Creation**
+
+```bash
+grokit --grok-project "Create a machine learning project for image classification"
+```
+
+This will:
+- 🧠 Use Grok AI to generate a detailed project outline
+- 📁 Create the complete project structure
+- 📦 Install all necessary dependencies
+- 🚀 Automatically open the project in Cursor
+- ✨ Generate starter code and documentation
+
+### 2. **Interactive Development**
+
+```bash
+grokit
+```
+
+```
+You: Help me build a REST API for a blog
+Grokit: I'll help you create a REST API for a blog. Let me start by setting up a Flask application with the essential endpoints...
+
+[Grokit generates and executes code]
+
+✅ Created blog_api.py with:
+   - User authentication
+   - CRUD operations for posts
+   - Database models
+   - API documentation
+
+Would you like me to add testing or deploy this to a cloud platform?
+```
+
+### 3. **Outline Generation**
+
+```bash
+grokit --grok-outline "Build a mobile app for task management"
+```
+
+Generates a comprehensive project plan with:
+- Architecture decisions
+- Technology stack recommendations
+- Implementation roadmap
+- File structure
+- Deployment strategies
+
+---
+
+## 🌐 Web Interface
+
+Launch the beautiful React web interface:
+
+```bash
+grok-server
+```
+
+### Features:
+- 📊 **Dashboard** - Project overview and system status
+- 💬 **AI Chat** - Interactive conversation with Grok
+- 🎨 **Project Wizard** - Step-by-step project creation
+- 📁 **File Manager** - Integrated workspace management
+- ⚙️ **Settings** - Model configuration and preferences
+- 🌓 **Dark/Light Mode** - Customizable themes
+
+---
+
+## 🔧 Configuration
+
+### API Keys
+
+Set your API keys for enhanced functionality:
+
+```bash
+# For Grok access via OpenRouter (recommended)
+export OPENROUTER_API_KEY="your_openrouter_key"
+
+# For direct xAI access (when available)
+export XAI_API_KEY="your_xai_key"
+
+# For additional models
+export OPENAI_API_KEY="your_openai_key"
+export ANTHROPIC_API_KEY="your_anthropic_key"
+```
+
+### Model Configuration
+
+```python
+import grokit
+
+# Configure default model
+interpreter = grokit.new_interpreter()
+interpreter.llm.model = "grok-3-beta"  # or "grok-beta", "gpt-4", "claude-3.5-sonnet"
+
+# Set custom API base
+interpreter.llm.api_base = "https://openrouter.ai/api/v1"
+```
+
+### Cursor Integration
+
+Ensure Cursor is installed and accessible:
+
+```bash
+# Install Cursor from https://cursor.sh
+# Grokit will automatically detect and integrate with Cursor
+```
+
+---
+
+## 📚 Examples
+
+### Web Application
+
+```python
+import grokit
+
+interpreter = grokit.new_interpreter()
+interpreter.llm.model = "grok-3-beta"
+
+# Create a full-stack web app
+interpreter.chat("""
+Create a modern web application with:
+- React frontend with Material-UI
+- Node.js/Express backend
+- MongoDB database
+- User authentication
+- Real-time chat functionality
+- Responsive design
+""")
+```
+
+### Data Science Project
+
+```python
+# Generate a complete ML pipeline
+interpreter.chat("""
+Build a machine learning project that:
+- Loads and analyzes a CSV dataset
+- Performs data cleaning and visualization
+- Trains multiple models (Random Forest, XGBoost, Neural Network)
+- Evaluates model performance
+- Creates a Streamlit dashboard for predictions
+""")
+```
+
+### API Development
+
+```python
+# Create a production-ready API
+interpreter.chat("""
+Design a RESTful API for an e-commerce platform:
+- FastAPI framework with async support
+- PostgreSQL database with SQLAlchemy
+- JWT authentication
+- Product catalog management
+- Order processing
+- Payment integration
+- Comprehensive testing
+- Docker containerization
+""")
+```
+
+---
+
+## 🎨 Advanced Features
+
+### Custom Workflows
+
+```python
+from grokit.workflows import GrokCursorWorkflow
+
+workflow = GrokCursorWorkflow()
+
+# Define custom project template
+workflow.add_template("microservice", {
+    "description": "Containerized microservice with FastAPI",
+    "structure": {
+        "app/": ["main.py", "models.py", "routes.py"],
+        "tests/": ["test_main.py"],
+        "docker/": ["Dockerfile", "docker-compose.yml"]
+    },
+    "dependencies": ["fastapi", "uvicorn", "sqlalchemy"],
+    "cursor_config": {"extensions": ["python", "docker"]}
+})
+
+# Use the template
+result = workflow.create_project(
+    "payment-service",
+    template="microservice",
+    features=["authentication", "database", "monitoring"]
+)
+```
+
+### Model Switching
+
+```python
+# Switch between models dynamically
+interpreter.llm.model = "grok-3-beta"      # For creative coding
+interpreter.chat("Build a game engine")
+
+interpreter.llm.model = "gpt-4"            # For precise analysis  
+interpreter.chat("Optimize this algorithm")
+
+interpreter.llm.model = "claude-3.5-sonnet" # For detailed documentation
+interpreter.chat("Document this codebase")
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+Grok'ed-Interpreter (Grokit)
+├── 🧠 AI Core
+│   ├── Grok Models (grok-3-beta, grok-beta)
+│   ├── OpenAI Models (gpt-4, gpt-4o)
+│   └── Anthropic Models (claude-3.5-sonnet)
+├── ⚡ Execution Engine
+│   ├── Code Generation
+│   ├── Safe Execution
+│   └── Error Handling
+├── 🚀 Cursor Integration
+│   ├── Project Creation
+│   ├── File Management
+│   └── Editor Automation
+├── 🌐 Web Interface
+│   ├── React Frontend
+│   ├── WebSocket Communication
+│   └── Real-time Updates
+└── 🔧 CLI Tools
+    ├── Interactive Chat
+    ├── Project Wizards
+    └── Batch Processing
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/grokit.git
+cd grokit
+
+# Install in development mode
+pip install -e .
+
+# Install development dependencies
+pip install -e .[server,ui,local,os]
+
+# Run tests
+python -m pytest
+
+# Start development server
+grok-server --dev
+```
+
+### Development Setup
+
+1. **Frontend Development**:
+   ```bash
+   cd ui
+   npm install
+   npm start  # Runs on http://localhost:3000
+   ```
+
+2. **Backend Development**:
+   ```bash
+   cd backend
+   python server.py  # Runs on http://localhost:8080
+   ```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Grok AI (xAI)** - For the powerful Grok models
+- **Cursor** - For the amazing AI-powered editor
+- **Open Interpreter** - For the foundational architecture
+- **React & Material-UI** - For the beautiful web interface
+
+---
+
+## 🔗 Links
+
+- 📖 **Documentation**: [grokit.readthedocs.io](https://grokit.readthedocs.io)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/grokit/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/grokit/discussions)
+- 🐦 **Twitter**: [@GrokedInterpreter](https://twitter.com/GrokedInterpreter)
+
+---
+
+<div align="center">
+  <h3>🌟 If you find Grokit useful, please consider giving it a star! 🌟</h3>
+  <p><strong>Built with ❤️ by the Grok'ed-Interpreter community</strong></p>
+</div>

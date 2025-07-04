@@ -1,234 +1,176 @@
 import React from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
-import { motion } from 'framer-motion';
+import { 
+  Box, 
+  Typography, 
+  LinearProgress, 
+  Paper,
+  useTheme
+} from '@mui/material';
+import { styled, keyframes } from '@mui/material/styles';
+
+const pulseAnimation = keyframes`
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+`;
+
+const LogoContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: theme.spacing(4),
+}));
+
+const LogoText = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: '2.5rem',
+  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+  animation: `${pulseAnimation} 2s ease-in-out infinite`,
+  textAlign: 'center',
+  lineHeight: 1.2,
+}));
+
+const Tagline = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: '1.1rem',
+  textAlign: 'center',
+  marginBottom: theme.spacing(4),
+  maxWidth: 600,
+}));
+
+const LoadingContainer = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(6),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '100vh',
+  backgroundColor: theme.palette.background.default,
+  borderRadius: 0,
+  boxShadow: 'none',
+}));
+
+const ProgressContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  maxWidth: 400,
+  marginTop: theme.spacing(3),
+}));
+
+const FeatureList = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(4),
+  alignItems: 'center',
+}));
+
+const FeatureItem = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: '0.9rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
 
 const LoadingScreen = () => {
+  const theme = useTheme();
+  const [progress, setProgress] = React.useState(0);
+  const [currentFeature, setCurrentFeature] = React.useState(0);
+
+  const features = [
+    '🤖 Initializing Grok AI models...',
+    '⚡ Connecting to Cursor automation...',
+    '🎯 Loading project wizards...',
+    '🌐 Starting web interface...',
+    '🔧 Preparing code execution environment...',
+    '✨ Ready to create amazing projects!'
+  ];
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress === 100) {
+          return 100;
+        }
+        const diff = Math.random() * 10;
+        return Math.min(oldProgress + diff, 100);
+      });
+    }, 200);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentFeature((prev) => (prev + 1) % features.length);
+    }, 800);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [features.length]);
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background Animation */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%)
-          `,
-        }}
-      />
+    <LoadingContainer>
+      <LogoContainer>
+        <LogoText variant="h1">
+          Grok'ed-Interpreter
+        </LogoText>
+      </LogoContainer>
+      
+      <Tagline>
+        The most powerful AI development platform - combining Grok AI, Cursor automation, and intelligent code execution
+      </Tagline>
 
-      {/* Main Content */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        {/* Logo/Icon */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <Box
-            sx={{
-              width: 120,
-              height: 120,
-              borderRadius: '24px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: 4,
-              fontSize: '48px',
-              fontWeight: 'bold',
-              color: 'white',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            ●
-          </Box>
-        </motion.div>
-
-        {/* Title */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 700,
-              mb: 1,
-              fontSize: { xs: '2rem', md: '3rem' },
-              textAlign: 'center',
-            }}
-          >
-            Open Interpreter
-          </Typography>
-        </motion.div>
-
-        {/* Subtitle */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 400,
-              opacity: 0.9,
-              mb: 4,
-              textAlign: 'center',
-              maxWidth: 400,
-            }}
-          >
-            AI-powered development platform with Grok-Cursor integration
-          </Typography>
-        </motion.div>
-
-        {/* Loading Spinner */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <Box sx={{ position: 'relative', display: 'inline-flex', mb: 2 }}>
-            <CircularProgress
-              size={60}
-              thickness={4}
-              sx={{
-                color: 'rgba(255, 255, 255, 0.8)',
-                '& .MuiCircularProgress-circle': {
-                  strokeLinecap: 'round',
-                },
-              }}
-            />
-            <Box
-              sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography
-                variant="caption"
-                component="div"
-                sx={{ color: 'white', fontWeight: 500 }}
-              >
-                AI
-              </Typography>
-            </Box>
-          </Box>
-        </motion.div>
-
-        {/* Loading Text */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          <Typography
-            variant="body1"
-            sx={{
-              opacity: 0.8,
-              textAlign: 'center',
-            }}
-          >
-            Initializing AI systems...
-          </Typography>
-        </motion.div>
-      </Box>
-
-      {/* Feature Pills */}
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.0 }}
-        style={{ position: 'absolute', bottom: 60, left: '50%', transform: 'translateX(-50%)' }}
-      >
-        <Box
+      <ProgressContainer>
+        <LinearProgress 
+          variant="determinate" 
+          value={progress} 
           sx={{
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            maxWidth: 600,
+            height: 6,
+            borderRadius: 3,
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            '& .MuiLinearProgress-bar': {
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            },
+          }}
+        />
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ 
+            textAlign: 'center', 
+            mt: 1 
           }}
         >
-          {['Grok Integration', 'Cursor Automation', 'Project Generation', 'Real-time Chat'].map((feature, index) => (
-            <motion.div
-              key={feature}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.2 + index * 0.1 }}
-            >
-              <Box
-                sx={{
-                  px: 3,
-                  py: 1,
-                  borderRadius: 20,
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  color: 'white',
-                }}
-              >
-                {feature}
-              </Box>
-            </motion.div>
-          ))}
-        </Box>
-      </motion.div>
-
-      {/* Version Info */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.4 }}
-        style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)' }}
-      >
-        <Typography
-          variant="caption"
-          sx={{
-            opacity: 0.6,
-            textAlign: 'center',
-          }}
-        >
-          Version 1.0.0 - Grok-Cursor Edition
+          {Math.round(progress)}% Complete
         </Typography>
-      </motion.div>
-    </Box>
+      </ProgressContainer>
+
+      <FeatureList>
+        <FeatureItem>
+          {features[currentFeature]}
+        </FeatureItem>
+      </FeatureList>
+
+      <Box sx={{ mt: 6, textAlign: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          Powered by Grok AI × Cursor × React
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Version 1.0.0
+        </Typography>
+      </Box>
+    </LoadingContainer>
   );
 };
 

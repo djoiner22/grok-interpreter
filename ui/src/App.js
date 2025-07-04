@@ -105,7 +105,7 @@ const createAppTheme = (darkMode) => createTheme({
 function App() {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
+    const saved = localStorage.getItem('grokit-theme');
     return saved ? JSON.parse(saved) : true; // Default to dark mode
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -132,7 +132,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    localStorage.setItem('grokit-theme', JSON.stringify(darkMode));
   }, [darkMode]);
 
   const toggleDarkMode = () => {
