@@ -93,7 +93,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "grokit"
+name = "grok-interpreter"
 version = "1.0.0"
 description = "Grok'ed-Interpreter: AI-powered code execution and project generation with Grok-Cursor integration"
 readme = "README.md"
@@ -192,14 +192,14 @@ os = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/grokit"
-Documentation = "https://grokit.readthedocs.io"
-Repository = "https://github.com/your-username/grokit.git"
-"Bug Tracker" = "https://github.com/your-username/grokit/issues"
-Changelog = "https://github.com/your-username/grokit/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/your-username/grok-interpreter"
+Documentation = "https://grok-interpreter.readthedocs.io"
+Repository = "https://github.com/your-username/grok-interpreter.git"
+"Bug Tracker" = "https://github.com/your-username/grok-interpreter/issues"
+Changelog = "https://github.com/your-username/grok-interpreter/blob/main/CHANGELOG.md"
 
 [project.scripts]
-grokit = "interpreter:main"
+grok-interpreter = "interpreter:main"
 grok-chat = "interpreter.terminal_interface.start_terminal_interface:main"
 grok-server = "backend.server:run_server"
 

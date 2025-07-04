@@ -1,13 +1,13 @@
 # Grok'ed-Interpreter
 
-[![PyPI version](https://badge.fury.io/py/grokit.svg)](https://badge.fury.io/py/grokit)
+[![PyPI version](https://badge.fury.io/py/grok-interpreter.svg)](https://badge.fury.io/py/grok-interpreter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
 **The most powerful AI development platform** - combining the best of Grok AI, Cursor automation, and intelligent code execution in one seamless package.
 
 ```bash
-pip install grokit
+pip install grok-interpreter
 ```
 
 <div align="center">
@@ -20,7 +20,7 @@ pip install grokit
 
 ## 🚀 What is Grok'ed-Interpreter?
 
-Grok'ed-Interpreter (Grokit) is the next evolution of AI-powered development tools. It seamlessly integrates **Grok AI models** with **Cursor editor automation** to provide an unparalleled development experience.
+Grok'ed-Interpreter is the next evolution of AI-powered development tools. It seamlessly integrates **Grok AI models** with **Cursor editor automation** to provide an unparalleled development experience.
 
 ### ✨ Key Features
 
@@ -39,14 +39,14 @@ Grok'ed-Interpreter (Grokit) is the next evolution of AI-powered development too
 ### Installation
 
 ```bash
-# Install Grokit
-pip install grokit
+# Install Grok-Interpreter
+pip install grok-interpreter
 
 # Install with UI support
-pip install grokit[ui]
+pip install grok-interpreter[ui]
 
 # Install with all features
-pip install grokit[server,ui,local,os]
+pip install grok-interpreter[server,ui,local,os]
 ```
 
 ### Basic Usage
@@ -55,25 +55,25 @@ pip install grokit[server,ui,local,os]
 
 ```bash
 # Start interactive chat
-grokit
+grok-interpreter
 
 # Create a project with Grok
-grokit --grok-project "Create a React todo app with authentication"
+grok-interpreter --grok-project "Create a React todo app with authentication"
 
 # Generate project outline
-grokit --grok-outline "Build a Python API server with FastAPI"
+grok-interpreter --grok-outline "Build a Python API server with FastAPI"
 
 # Use specific Grok model
-grokit --use-grok --model grok-3-beta
+grok-interpreter --use-grok --model grok-3-beta
 ```
 
 #### Python API
 
 ```python
-import grokit
+import grok_interpreter
 
 # Initialize with Grok
-interpreter = grokit.new_interpreter()
+interpreter = grok_interpreter.new_interpreter()
 interpreter.llm.model = "grok-3-beta"
 
 # Generate and execute code
@@ -103,7 +103,7 @@ grok-server
 ### 1. **Grok Project Creation**
 
 ```bash
-grokit --grok-project "Create a machine learning project for image classification"
+grok-interpreter --grok-project "Create a machine learning project for image classification"
 ```
 
 This will:
@@ -116,14 +116,14 @@ This will:
 ### 2. **Interactive Development**
 
 ```bash
-grokit
+grok-interpreter
 ```
 
 ```
 You: Help me build a REST API for a blog
-Grokit: I'll help you create a REST API for a blog. Let me start by setting up a Flask application with the essential endpoints...
+Grok'ed-Interpreter: I'll help you create a REST API for a blog. Let me start by setting up a Flask application with the essential endpoints...
 
-[Grokit generates and executes code]
+[Grok'ed-Interpreter generates and executes code]
 
 ✅ Created blog_api.py with:
    - User authentication
@@ -137,7 +137,7 @@ Would you like me to add testing or deploy this to a cloud platform?
 ### 3. **Outline Generation**
 
 ```bash
-grokit --grok-outline "Build a mobile app for task management"
+grok-interpreter --grok-outline "Build a mobile app for task management"
 ```
 
 Generates a comprehensive project plan with:
@@ -188,10 +188,10 @@ export ANTHROPIC_API_KEY="your_anthropic_key"
 ### Model Configuration
 
 ```python
-import grokit
+import grok_interpreter
 
 # Configure default model
-interpreter = grokit.new_interpreter()
+interpreter = grok_interpreter.new_interpreter()
 interpreter.llm.model = "grok-3-beta"  # or "grok-beta", "gpt-4", "claude-3.5-sonnet"
 
 # Set custom API base
@@ -204,7 +204,7 @@ Ensure Cursor is installed and accessible:
 
 ```bash
 # Install Cursor from https://cursor.sh
-# Grokit will automatically detect and integrate with Cursor
+# Grok'ed-Interpreter will automatically detect and integrate with Cursor
 ```
 
 ---
@@ -214,9 +214,9 @@ Ensure Cursor is installed and accessible:
 ### Web Application
 
 ```python
-import grokit
+import grok_interpreter
 
-interpreter = grokit.new_interpreter()
+interpreter = grok_interpreter.new_interpreter()
 interpreter.llm.model = "grok-3-beta"
 
 # Create a full-stack web app
@@ -269,7 +269,7 @@ Design a RESTful API for an e-commerce platform:
 ### Custom Workflows
 
 ```python
-from grokit.workflows import GrokCursorWorkflow
+from grok_interpreter.workflows import GrokCursorWorkflow
 
 workflow = GrokCursorWorkflow()
 
@@ -312,7 +312,7 @@ interpreter.chat("Document this codebase")
 ## 🏗️ Architecture
 
 ```
-Grok'ed-Interpreter (Grokit)
+Grok'ed-Interpreter
 ├── 🧠 AI Core
 │   ├── Grok Models (grok-3-beta, grok-beta)
 │   ├── OpenAI Models (gpt-4, gpt-4o)
@@ -343,8 +343,8 @@ We welcome contributions! Here's how to get started:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/grokit.git
-cd grokit
+git clone https://github.com/your-username/grok-interpreter.git
+cd grok-interpreter
 
 # Install in development mode
 pip install -e .
@@ -393,14 +393,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- 📖 **Documentation**: [grokit.readthedocs.io](https://grokit.readthedocs.io)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/grokit/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/grokit/discussions)
+- 📖 **Documentation**: [grok-interpreter.readthedocs.io](https://grok-interpreter.readthedocs.io)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/grok-interpreter/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/grok-interpreter/discussions)
 - 🐦 **Twitter**: [@GrokedInterpreter](https://twitter.com/GrokedInterpreter)
 
 ---
 
 <div align="center">
-  <h3>🌟 If you find Grokit useful, please consider giving it a star! 🌟</h3>
+  <h3>🌟 If you find Grok'ed-Interpreter useful, please consider giving it a star! 🌟</h3>
   <p><strong>Built with ❤️ by the Grok'ed-Interpreter community</strong></p>
 </div>

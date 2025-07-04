@@ -1,6 +1,6 @@
 # Grok'ed-Interpreter React Web UI
 
-A modern, feature-rich React web interface for **Grok'ed-Interpreter** (Grokit), providing an intuitive way to interact with AI-powered development tools.
+A modern, feature-rich React web interface for **Grok'ed-Interpreter**, providing an intuitive way to interact with AI-powered development tools.
 
 ## 🌟 Features
 
@@ -19,13 +19,13 @@ A modern, feature-rich React web interface for **Grok'ed-Interpreter** (Grokit),
 
 - Node.js 16.0 or higher
 - npm or yarn package manager
-- Python 3.8+ with Grokit installed
+- Python 3.8+ with Grok-Interpreter installed
 
 ### Installation
 
-1. **Install Grokit**:
+1. **Install Grok-Interpreter**:
    ```bash
-   pip install grokit
+   pip install grok-interpreter
    ```
 
 2. **Install UI Dependencies**:
@@ -248,7 +248,7 @@ grok-server --debug
 REACT_APP_DEBUG=true npm start
 ```
 
-## � API Documentation
+## 📄 API Documentation
 
 ### REST Endpoints
 
@@ -285,7 +285,7 @@ npm test
 npm run build
 ```
 
-## � Libraries Used
+## 📚 Libraries Used
 
 - **React** 18.2.0 - UI framework
 - **Material-UI** 5.x - Component library
@@ -337,7 +337,7 @@ CMD ["npm", "start"]
 
 ## 🔗 Links
 
-- **Grokit Documentation** - [grokit.readthedocs.io](https://grokit.readthedocs.io)
+- **Grok-Interpreter Documentation** - [grok-interpreter.readthedocs.io](https://grok-interpreter.readthedocs.io)
 - **Grok AI** - [x.ai](https://x.ai)
 - **Cursor Editor** - [cursor.sh](https://cursor.sh)
 - **Material-UI** - [mui.com](https://mui.com)

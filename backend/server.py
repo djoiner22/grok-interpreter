@@ -36,16 +36,16 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('grokit_server.log'),
+        logging.FileHandler('grok_interpreter_server.log'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-class GrokitServer:
+class GrokInterpreterServer:
     def __init__(self):
         self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'grokit-secret-key-change-in-production')
+        self.app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'grok-interpreter-secret-key-change-in-production')
         
         # Enable CORS for all routes
         CORS(self.app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
@@ -289,7 +289,7 @@ class GrokitServer:
                     'memory_total': psutil.virtual_memory().total,
                     'memory_available': psutil.virtual_memory().available,
                     'disk_usage': psutil.disk_usage('/').percent,
-                    'grokit_version': '1.0.0'
+                    'grok_interpreter_version': '1.0.0'
                 }
                 
                 emit('system_info', system_info)
@@ -463,7 +463,7 @@ def run_server():
     args = parser.parse_args()
     
     # Create and run the server
-    server = GrokitServer()
+    server = GrokInterpreterServer()
     server.run(host=args.host, port=args.port, debug=args.debug)
 
 if __name__ == '__main__':

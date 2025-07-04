@@ -1,13 +1,13 @@
 # Grok'ed-Interpreter: Grok-Cursor Integration
 
-Complete integration guide for using **Grok'ed-Interpreter** (Grokit) with Grok AI models and Cursor editor automation.
+Complete integration guide for using **Grok'ed-Interpreter** with Grok AI models and Cursor editor automation.
 
 ## 🚀 Overview
 
 **Grok'ed-Interpreter** seamlessly combines the power of:
 - **Grok AI** (by xAI) - Advanced language models with real-time knowledge
 - **Cursor Editor** - AI-powered code editor with intelligent automation
-- **Grokit Core** - Enhanced Open Interpreter with workflow orchestration
+- **Grok'ed-Interpreter Core** - Enhanced Open Interpreter with workflow orchestration
 
 This integration enables you to:
 1. **Generate project outlines** using Grok's intelligence
@@ -22,14 +22,14 @@ This integration enables you to:
 - Node.js 16+ (for React UI)
 - [Cursor Editor](https://cursor.sh) installed and accessible
 
-### Install Grokit
+### Install Grok-Interpreter
 ```bash
-pip install grokit
+pip install grok-interpreter
 ```
 
 ### Install with All Features
 ```bash
-pip install grokit[server,ui,local,os]
+pip install grok-interpreter[server,ui,local,os]
 ```
 
 ## 🔑 API Configuration
@@ -63,27 +63,27 @@ export XAI_API_KEY="your_xai_api_key"
 
 #### 1. Create a Complete Project
 ```bash
-grokit --grok-project "Create a modern React dashboard with authentication, user management, and real-time analytics"
+grok-interpreter --grok-project "Create a modern React dashboard with authentication, user management, and real-time analytics"
 ```
 
 #### 2. Generate Project Outline
 ```bash
-grokit --grok-outline "Build a Python microservice with FastAPI, PostgreSQL, and Docker"
+grok-interpreter --grok-outline "Build a Python microservice with FastAPI, PostgreSQL, and Docker"
 ```
 
 #### 3. Interactive Chat with Grok
 ```bash
-grokit --use-grok --model grok-3-beta
+grok-interpreter --use-grok --model grok-3-beta
 ```
 
 ### Python API
 
 #### Basic Usage
 ```python
-import grokit
+import grok_interpreter
 
 # Initialize with Grok
-interpreter = grokit.new_interpreter()
+interpreter = grok_interpreter.new_interpreter()
 interpreter.llm.model = "grok-3-beta"
 
 # Generate code
@@ -99,7 +99,7 @@ result = interpreter.create_project_with_grok(
 
 #### Advanced Workflow
 ```python
-from grokit.workflows import GrokCursorWorkflow
+from grok_interpreter.workflows import GrokCursorWorkflow
 
 # Initialize workflow
 workflow = GrokCursorWorkflow(interpreter)
@@ -193,7 +193,7 @@ result = workflow.run_complete_workflow(description, use_grok=True)
 
 ### Create Custom Templates
 ```python
-from grokit.workflows import GrokCursorWorkflow
+from grok_interpreter.workflows import GrokCursorWorkflow
 
 workflow = GrokCursorWorkflow(interpreter)
 
@@ -242,16 +242,16 @@ export ANTHROPIC_API_KEY="your_key"
 export DEFAULT_MODEL="grok-3-beta"
 
 # Workspace Configuration
-export GROKIT_WORKSPACE="~/grokit-projects"
+export GROK_INTERPRETER_WORKSPACE="~/grok-interpreter-projects"
 export CURSOR_PATH="/usr/local/bin/cursor"
 
 # Server Configuration
-export GROKIT_HOST="0.0.0.0"
-export GROKIT_PORT="8080"
+export GROK_INTERPRETER_HOST="0.0.0.0"
+export GROK_INTERPRETER_PORT="8080"
 ```
 
 ### Configuration File
-Create `~/.grokit/config.yaml`:
+Create `~/.grok-interpreter/config.yaml`:
 ```yaml
 models:
   default: "grok-3-beta"
@@ -264,7 +264,7 @@ models:
       base_url: "https://api.x.ai/v1"
 
 workspace:
-  default_path: "~/grokit-projects"
+  default_path: "~/grok-interpreter-projects"
   auto_open_cursor: true
   confirm_before_run: true
 
@@ -336,7 +336,7 @@ def post_generation_hook(result):
         readme_path = f"{project_path}/README.md"
         with open(readme_path, "a") as f:
             f.write("\n\n## Generated with Grok'ed-Interpreter\n")
-            f.write("This project was created using Grokit's AI-powered workflow.\n")
+            f.write("This project was created using Grok-Interpreter's AI-powered workflow.\n")
 
 # Register hooks
 workflow.register_hook("pre_generation", pre_generation_hook)
@@ -353,8 +353,8 @@ workflow.register_hook("post_generation", post_generation_hook)
    curl -H "Authorization: Bearer $OPENROUTER_API_KEY" \
         "https://openrouter.ai/api/v1/models"
    
-   # Test with grokit
-   grokit --test-grok
+   # Test with grok-interpreter
+   grok-interpreter --test-grok
    ```
 
 2. **Cursor Not Opening**
@@ -364,34 +364,34 @@ workflow.register_hook("post_generation", post_generation_hook)
    cursor --version
    
    # Test cursor integration
-   grokit --test-cursor
+   grok-interpreter --test-cursor
    ```
 
 3. **Project Creation Fails**
    ```bash
    # Check workspace permissions
-   ls -la ~/grokit-projects
+   ls -la ~/grok-interpreter-projects
    
    # Check disk space
    df -h
    
    # Enable debug mode
-   grokit --debug --grok-project "test project"
+   grok-interpreter --debug --grok-project "test project"
    ```
 
 ### Debug Commands
 ```bash
 # Check system status
-grokit --status
+grok-interpreter --status
 
 # Test all integrations
-grokit --test-all
+grok-interpreter --test-all
 
 # Enable verbose logging
-grokit --verbose --grok-project "test"
+grok-interpreter --verbose --grok-project "test"
 
 # Check configuration
-grokit --config-check
+grok-interpreter --config-check
 ```
 
 ## 📊 Performance Optimization
@@ -437,7 +437,7 @@ async def create_multiple_projects():
 ```python
 # Use environment variables
 import os
-from grokit.config import Config
+from grok_interpreter.config import Config
 
 config = Config()
 config.set_api_key("openrouter", os.getenv("OPENROUTER_API_KEY"))
@@ -454,7 +454,7 @@ interpreter.confirm_before_run = True
 
 # Restrict file operations
 interpreter.restrict_file_operations = True
-interpreter.allowed_paths = ["~/grokit-projects"]
+interpreter.allowed_paths = ["~/grok-interpreter-projects"]
 ```
 
 ## 🤝 Contributing
@@ -462,8 +462,8 @@ interpreter.allowed_paths = ["~/grokit-projects"]
 ### Development Setup
 ```bash
 # Clone repository
-git clone https://github.com/your-username/grokit.git
-cd grokit
+git clone https://github.com/your-username/grok-interpreter.git
+cd grok-interpreter
 
 # Install in development mode
 pip install -e .[dev]
@@ -478,7 +478,7 @@ grok-server --dev
 ### Creating Extensions
 ```python
 # Create custom extension
-from grokit.extensions import Extension
+from grok_interpreter.extensions import Extension
 
 class CustomExtension(Extension):
     def __init__(self):
@@ -498,13 +498,13 @@ interpreter.register_extension(CustomExtension())
 
 ## 📚 Resources
 
-- **Documentation**: [grokit.readthedocs.io](https://grokit.readthedocs.io)
-- **Examples**: [github.com/grokit/examples](https://github.com/grokit/examples)
-- **Community**: [discord.gg/grokit](https://discord.gg/grokit)
-- **Issues**: [github.com/grokit/issues](https://github.com/grokit/issues)
+- **Documentation**: [grok-interpreter.readthedocs.io](https://grok-interpreter.readthedocs.io)
+- **Examples**: [github.com/grok-interpreter/examples](https://github.com/grok-interpreter/examples)
+- **Community**: [discord.gg/grok-interpreter](https://discord.gg/grok-interpreter)
+- **Issues**: [github.com/grok-interpreter/issues](https://github.com/grok-interpreter/issues)
 
 ---
 
 **Built with ❤️ by the Grok'ed-Interpreter community**
 
-For more information, visit: [grokit.ai](https://grokit.ai)
+For more information, visit: [grok-interpreter.ai](https://grok-interpreter.ai)
