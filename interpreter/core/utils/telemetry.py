@@ -15,7 +15,11 @@ import os
 import threading
 import uuid
 
-import pkg_resources
+try:
+    from importlib import metadata as importlib_metadata
+except ImportError:  # pragma: no cover - Python <3.8 fallback
+    import importlib_metadata  # type: ignore
+
 import requests
 
 
@@ -47,9 +51,11 @@ user_id = get_or_create_uuid()
 def send_telemetry(event_name, properties=None):
     if properties is None:
         properties = {}
-    properties["oi_version"] = pkg_resources.get_distribution(
-        "open-interpreter"
-    ).version
+    try:
+        oi_version = importlib_metadata.version("open-interpreter")
+    except Exception:
+        oi_version = "unknown"
+    properties["oi_version"] = oi_version
     try:
         url = "https://app.posthog.com/capture"
         headers = {"Content-Type": "application/json"}

@@ -66,3 +66,13 @@ easyocr>=1.6.0;extra=="os"
 pywinctl>=0.0.50;extra=="os"
 clipboard>=0.0.4;extra=="os"
 pynput>=1.7.0;extra=="os"
+
+# --- Added for core tests/runtime (imports used by interpreter and tests) ---
+shortuuid>=1.0.0
+fastapi>=0.111.0
+uvicorn>=0.30.1
+janus>=1.0.0
+pydantic>=2.6.0
+starlette>=0.37.0
+websockets>=13.0
+websocket-client>=1.8.0

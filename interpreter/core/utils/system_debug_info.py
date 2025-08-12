@@ -1,7 +1,11 @@
 import platform
 import subprocess
 
-import pkg_resources
+try:
+    from importlib import metadata as importlib_metadata
+except ImportError:  # pragma: no cover - Python <3.8 fallback
+    import importlib_metadata  # type: ignore
+
 import psutil
 import toml
 
@@ -25,7 +29,12 @@ def get_oi_version():
         )
     except Exception as e:
         oi_version_cmd = str(e)
-    oi_version_pkg = pkg_resources.get_distribution("open-interpreter").version
+
+    try:
+        oi_version_pkg = importlib_metadata.version("open-interpreter")
+    except Exception:
+        oi_version_pkg = "unknown"
+
     oi_version = oi_version_cmd, oi_version_pkg
     return oi_version
 
@@ -47,27 +56,53 @@ def get_ram_info():
 
 
 def get_package_mismatches(file_path="pyproject.toml"):
-    with open(file_path, "r") as file:
-        pyproject = toml.load(file)
-    dependencies = pyproject["tool"]["poetry"]["dependencies"]
-    dev_dependencies = pyproject["tool"]["poetry"]["group"]["dev"]["dependencies"]
-    dependencies.update(dev_dependencies)
+    try:
+        with open(file_path, "r") as file:
+            pyproject = toml.load(file)
+        dependencies = pyproject.get("tool", {}).get("poetry", {}).get("dependencies", {})
+        dev_dependencies = (
+            pyproject.get("tool", {}).get("poetry", {}).get("group", {}).get("dev", {}).get("dependencies", {})
+        )
+        merged_dependencies = {}
+        merged_dependencies.update(dependencies)
+        merged_dependencies.update(dev_dependencies)
+    except Exception:
+        merged_dependencies = {}
 
-    installed_packages = {pkg.key: pkg.version for pkg in pkg_resources.working_set}
+    installed_packages = {}
+    try:
+        for dist in importlib_metadata.distributions():
+            try:
+                installed_packages[dist.metadata["Name"].lower()] = dist.version
+            except Exception:
+                # Fallback in case metadata is missing
+                name = getattr(dist, "metadata", {}).get("Name") or getattr(dist, "_name", None)
+                if name:
+                    installed_packages[name.lower()] = getattr(dist, "version", "unknown")
+    except Exception:
+        installed_packages = {}
 
     mismatches = []
-    for package, version_info in dependencies.items():
-        if isinstance(version_info, dict):
-            version_info = version_info["version"]
-        installed_version = installed_packages.get(package)
-        if installed_version and version_info.startswith("^"):
-            expected_version = version_info[1:]
-            if not installed_version.startswith(expected_version):
-                mismatches.append(
-                    f"\t  {package}: Mismatch, pyproject.toml={expected_version}, pip={installed_version}"
-                )
-        else:
-            mismatches.append(f"\t  {package}: Not found in pip list")
+    for package, version_info in merged_dependencies.items():
+        try:
+            if isinstance(version_info, dict):
+                version_spec = version_info.get("version")
+            else:
+                version_spec = str(version_info)
+
+            installed_version = installed_packages.get(package.lower())
+            if installed_version is None:
+                mismatches.append(f"\t  {package}: Not found in pip list")
+                continue
+
+            if version_spec and version_spec.startswith("^"):
+                expected_prefix = version_spec[1:]
+                if not installed_version.startswith(expected_prefix):
+                    mismatches.append(
+                        f"\t  {package}: Mismatch, pyproject.toml={expected_prefix}, pip={installed_version}"
+                    )
+        except Exception as e:
+            mismatches.append(f"\t  {package}: Error checking version ({e})")
 
     return "\n" + "\n".join(mismatches)
 
@@ -120,21 +155,22 @@ def interpreter_info(interpreter):
         return "Error, couldn't get interpreter info"
 
 
-def system_info(interpreter):
-    oi_version = get_oi_version()
-    print(
-        f"""
-        Python Version: {get_python_version()}
-        Pip Version: {get_pip_version()}
-        Open-interpreter Version: cmd: {oi_version[0]}, pkg: {oi_version[1]}
-        OS Version and Architecture: {get_os_version()}
-        CPU Info: {get_cpu_info()}
-        RAM Info: {get_ram_info()}
-        {interpreter_info(interpreter)}
-    """
-    )
+def get_system_debug_info():
+    try:
+        info = f"""
 
-    # Removed the following, as it causes `FileNotFoundError: [Errno 2] No such file or directory: 'pyproject.toml'`` on prod
-    # (i think it works on dev, but on prod the pyproject.toml will not be in the cwd. might not be accessible at all)
-    # Package Version Mismatches:
-    # {get_package_mismatches()}
+        # System Debug Info
+
+        Python version: {get_python_version()}
+        Pip version: {get_pip_version()}
+        Open Interpreter version: {get_oi_version()}
+        OS version: {get_os_version()}
+        CPU info: {get_cpu_info()}
+        RAM info: {get_ram_info()}
+
+        # Package mismatches: {get_package_mismatches()}
+
+        """
+        return info
+    except Exception as e:
+        return str(e)

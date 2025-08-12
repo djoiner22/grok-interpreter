@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import datetime
 
-from ..core.utils.system_debug_info import system_info
+from ..core.utils.system_debug_info import get_system_debug_info
 from .utils.count_tokens import count_messages_tokens
 from .utils.export_to_markdown import export_to_markdown
 
@@ -135,7 +135,7 @@ def handle_auto_run(self, arguments=None):
 
 
 def handle_info(self, arguments):
-    system_info(self)
+    self.display_message(get_system_debug_info())
 
 
 def handle_reset(self, arguments):
