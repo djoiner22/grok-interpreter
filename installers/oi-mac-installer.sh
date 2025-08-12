@@ -1,118 +1,72 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "Starting Open Interpreter installation..."
-sleep 2
-echo "This will take approximately 5 minutes..."
-sleep 2
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+UI_DIR="$PROJECT_ROOT/ui"
+VENV_DIR="$PROJECT_ROOT/.venv"
 
-# Define pyenv location
-pyenv_root="$HOME/.pyenv/bin/pyenv"
+echo "[Grok'ed-Interpreter] Installing..."
 
-#!/bin/bash
-
-# Check if Git is installed
-if command -v git >/dev/null; then
-    echo "Git is already installed."
+# 1) Node 18 via nvm or brew
+if ! command -v node >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    brew install node@18
+    brew link --force --overwrite node@18
+  else
+    export NVM_DIR="$HOME/.nvm"
+    mkdir -p "$NVM_DIR"
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    # shellcheck disable=SC1090
+    . "$NVM_DIR/nvm.sh"
+    nvm install 18
+    nvm use 18
+  fi
 else
-    # Detect the operating system
-    OS="$(uname -s)"
-
-    case "$OS" in
-        Linux)
-            # Assume a Debian-based or Fedora-based system
-            if command -v apt >/dev/null; then
-                echo "Installing Git on Debian-based Linux..."
-                # Check and install sudo if not present
-                if ! command -v sudo &> /dev/null; then
-                    apt-get update && apt-get install -y sudo
-                fi
-                sudo apt install -y git-all
-            elif command -v dnf >/dev/null; then
-                echo "Installing Git on Fedora-based Linux..."
-                # Check and install sudo if not present
-                if ! command -v sudo &> /dev/null; then
-                    dnf install -y sudo
-                fi
-                sudo dnf install -y git-all
-            else
-                echo "Package manager not supported. Please install Git manually."
-            fi
-            ;;
-        Darwin)
-            echo "Installing Git on macOS..."
-            # Install Git using Xcode Command Line Tools
-            xcode-select --install
-            ;;
-        *)
-            echo "Unsupported OS: $OS"
-            ;;
-    esac
-fi
-
-echo "Starting installation of pyenv..."
-
-INSTALL_URL="https://pyenv.run"
-
-# Check if pyenv is already installed
-if command -v pyenv &> /dev/null; then
-    echo "pyenv is already installed."
-else
-    # Try to download and install pyenv using available commands
-    if command -v curl &> /dev/null; then
-        echo "Using curl to download pyenv..."
-        curl -L "$INSTALL_URL" | sh
-    # elif command -v wget &> /dev/null; then
-    #     echo "Using wget to download pyenv..."
-    #     wget -O- "$INSTALL_URL" | sh
-    # elif command -v python &> /dev/null; then
-    #     echo "Using Python to download pyenv..."
-    #     python -c "import urllib.request; exec(urllib.request.urlopen('$INSTALL_URL').read())"
-    # elif command -v perl &> /dev/null; then
-    #     echo "Using Perl to download pyenv..."
-    #     perl -e "use LWP::Simple; exec(get('$INSTALL_URL'))"
+  NODE_V=$(node -v || true)
+  if [[ ! "$NODE_V" =~ ^v18\. ]]; then
+    if command -v brew >/dev/null 2>&1; then
+      brew install node@18
+      brew link --force --overwrite node@18
     else
-        echo "Neither curl nor wget is available."
-        if [ "$(uname -s)" = "Linux" ]; then
-            echo "Linux detected. Attempting to install sudo and curl..."
-
-            # Check and install sudo if not present
-            if ! command -v sudo &> /dev/null; then
-                apt-get update && apt-get install -y sudo
-            fi
-
-            # Install curl using sudo
-            if command -v sudo &> /dev/null; then
-                sudo apt-get update && sudo apt-get install -y curl
-                if command -v curl &> /dev/null; then
-                    echo "Using curl to download pyenv..."
-                    curl -L "$INSTALL_URL" | sh
-                else
-                    echo "Failed to install curl. Installation of pyenv cannot proceed."
-                fi
-            else
-                echo "Unable to install sudo. Manual installation required."
-            fi
-        else
-            echo "Failed to install curl. Installation of pyenv cannot proceed."
-        fi
+      export NVM_DIR="$HOME/.nvm"
+      mkdir -p "$NVM_DIR"
+      curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+      # shellcheck disable=SC1090
+      . "$NVM_DIR/nvm.sh"
+      nvm install 18
+      nvm use 18
     fi
+  fi
 fi
 
-# Install Python and remember the version
-python_version=3.11
-$pyenv_root install $python_version --skip-existing
+echo "Node version: $(node -v)"
 
-# Explicitly use the installed Python version for commands
-installed_version=$($pyenv_root exec python$python_version --version)
-echo "Installed Python version: $installed_version"
-if [[ $installed_version != *"$python_version"* ]]; then
-    echo "Python $python_version was not installed correctly. Please open an issue at https://github.com/openinterpreter/universal-python/."
-    exit 1
-fi
+# 2) Python venv and package
+python3 -m venv "$VENV_DIR" || true
+# shellcheck disable=SC1090
+source "$VENV_DIR/bin/activate"
+pip install -U pip
+pip install -U ".[server,ui]" -r "$PROJECT_ROOT/requirements.txt"
 
-# Use the specific Python version to install open-interpreter
-$pyenv_root exec python$python_version -m pip install open-interpreter
+# 3) UI deps
+cd "$UI_DIR"
+npm install --legacy-peer-deps
+npm install -D ajv@^8 ajv-keywords@^5 --no-audit
 
-echo "Open Interpreter has been installed. Run the following command to use it:"
-echo "interpreter"
+# 4) Run script
+cd "$PROJECT_ROOT"
+cat > start-grok-interpreter.command <<'EOF'
+#!/usr/bin/env bash
+set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/.venv/bin/activate"
+python -m backend.server &
+BACK_PID=$!
+cd "$SCRIPT_DIR/ui"
+npm start
+kill $BACK_PID || true
+EOF
+chmod +x start-grok-interpreter.command
+
+echo "Done. Double-click start-grok-interpreter.command to run."
