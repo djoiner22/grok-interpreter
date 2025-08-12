@@ -3,11 +3,6 @@ import time
 
 import html2text
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 class Browser:
@@ -64,6 +59,13 @@ class Browser:
 
     def setup(self, headless):
         try:
+            # Lazy import Selenium and webdriver manager so environments without them can still import this module
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.common.by import By  # noqa: F401  # used elsewhere
+            from selenium.webdriver.common.keys import Keys  # noqa: F401  # used elsewhere
+            from webdriver_manager.chrome import ChromeDriverManager
+
             self.service = Service(ChromeDriverManager().install())
             self.options = webdriver.ChromeOptions()
             # Run Chrome in headless mode
@@ -72,6 +74,10 @@ class Browser:
                 self.options.add_argument("--disable-gpu")
                 self.options.add_argument("--no-sandbox")
             self._driver = webdriver.Chrome(service=self.service, options=self.options)
+        except ImportError:
+            raise ImportError(
+                "Selenium is required for browser automation. Install with: pip install selenium webdriver-manager"
+            )
         except Exception as e:
             print(f"An error occurred while setting up the WebDriver: {e}")
             self._driver = None
@@ -83,6 +89,10 @@ class Browser:
 
     def search_google(self, query, delays=True):
         """Perform a Google search"""
+        # Lazy import to avoid top-level dependency
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.common.keys import Keys
+
         self.driver.get("https://www.perplexity.ai")
         # search_box = self.driver.find_element(By.NAME, 'q')
         # search_box.send_keys(query)
@@ -98,6 +108,9 @@ class Browser:
 
     def analyze_page(self, intent):
         """Extract HTML, list interactive elements, and analyze with AI"""
+        # Lazy import to avoid top-level dependency
+        from selenium.webdriver.common.by import By
+
         html_content = self.driver.page_source
         text_content = html2text.html2text(html_content)
 
