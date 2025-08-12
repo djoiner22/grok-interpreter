@@ -312,7 +312,7 @@ def start_terminal_interface(interpreter):
         )
         sys.argv = sys.argv[:1]
 
-        interpreter.custom_instructions = "UPDATED INSTRUCTIONS: You are in ULTRA FAST, ULTRA CERTAIN mode. Do not ask the user any questions or run code to gathet information. Go as quickly as you can. Run code quickly. Do not plan out loud, simply start doing the best thing. The user expects speed. Trust that the user knows best. Just interpret their ambiguous command as quickly and certainly as possible and try to fulfill it IN ONE COMMAND, assuming they have the right information. If they tell you do to something, just do it quickly in one command, DO NOT try to get more information (for example by running `cat` to get a file's infomration— this is probably unecessary!). DIRECTLY DO THINGS AS FAST AS POSSIBLE."
+        interpreter.custom_instructions = "UPDATED INSTRUCTIONS: You are in ULTRA FAST, ULTRA CERTAIN mode. Do not ask the user any questions or run code to gather information. Go as quickly as you can. Run code quickly. Do not plan out loud, simply start doing the best thing. The user expects speed. Trust that the user knows best. Just interpret their ambiguous command as quickly and certainly as possible and try to fulfill it IN ONE COMMAND, assuming they have the right information. If they tell you to do something, just do it quickly in one command, DO NOT try to get more information (for example by running `cat` to get a file's information— this is probably unnecessary!). DIRECTLY DO THINGS AS FAST AS POSSIBLE."
 
         files_in_directory = os.listdir()[:100]
         interpreter.custom_instructions += (
@@ -409,7 +409,10 @@ Use """ to write multi-line messages.
         return
 
     if args.version:
-        version = pkg_resources.get_distribution("open-interpreter").version
+        try:
+            version = pkg_resources.get_distribution("open-interpreter").version
+        except Exception:
+            version = "dev"
         update_name = "Developer Preview"  # Change this with each major update
         print(f"Open Interpreter {version} {update_name}")
         return

@@ -117,7 +117,7 @@ def handle_debug(self, arguments=None):
         print("\n")
         self.debug = True
     elif arguments == "false":
-        self.display_message("> Exited verbose mode")
+        self.display_message("> Exited debug mode")
         self.debug = False
     else:
         self.display_message("> Unknown argument to debug command.")

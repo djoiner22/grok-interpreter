@@ -1,3 +1,4 @@
+import logging
 try:
     import tiktoken
     from litellm import cost_per_token
@@ -19,7 +20,7 @@ def count_tokens(text="", model="gpt-4"):
         try:
             encoder = tiktoken.encoding_for_model(model)
         except KeyError:
-            print(
+            logging.debug(
                 f"Could not find tokenizer for {model}. Defaulting to gpt-4 tokenizer."
             )
             encoder = tiktoken.encoding_for_model("gpt-4")

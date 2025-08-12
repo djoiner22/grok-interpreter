@@ -329,7 +329,7 @@ def _maybe_prepend_system_tool_result(result: ToolResult, result_text: str):
 
 async def main():
     global exit_flag
-    messages: List[BetaMessageParam] = []
+    global messages
     model = PROVIDER_TO_DEFAULT_MODEL_NAME[APIProvider.ANTHROPIC]
     provider = APIProvider.ANTHROPIC
     system_prompt_suffix = ""
