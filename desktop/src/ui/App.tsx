@@ -1,11 +1,13 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { SessionBar } from './SessionBar'
 
 const App: React.FC = () => {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
 
-  const serverBase = useMemo(() => `http://127.0.0.1:${process.env.INTERPRETER_PORT || '8000'}`, [])
+  const [session, setSession] = useState<{ id: string; port: number } | null>(null)
+  const serverBase = useMemo(() => `http://127.0.0.1:${session?.port || '8000'}`, [session])
 
   async function send() {
     if (!input.trim() || busy) return
@@ -60,10 +62,20 @@ const App: React.FC = () => {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const s = await (window as any).electronAPI?.getSession?.()
+        if (s) setSession(s)
+      } catch {}
+    })()
+  }, [])
+
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <header style={{ padding: 12, borderBottom: '1px solid #eee' }}>
+      <header style={{ padding: 12, borderBottom: '1px solid #eee', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
         <strong>Open Interpreter</strong>
+        <SessionBar current={session} onSelect={(s) => setSession(s)} />
       </header>
       <main style={{ flex: 1, overflow: 'auto', padding: 12 }}>
         {messages.map((m, i) => (

@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Electron + Vite + React wrapper for Open Interpreter",
   "main": "electron/main.js",
+  "electron": {
+    "preload": "electron/preload.js"
+  },
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n VITE,ELECTRON \"vite\" \"wait-on tcp:5173 && electron .\"",

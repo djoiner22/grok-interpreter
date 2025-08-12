@@ -5,20 +5,24 @@ import getPort from 'get-port'
 import os from 'os'
 
 let mainWindow = null
-let pyProc = null
-let serverPort = 8000
+const sessions = new Map() // id -> { window, pyProc, port }
+let nextId = 1
+
+function sessionId() {
+  return String(nextId++)
+}
 
 async function startPythonServer() {
   try {
-    serverPort = process.env.INTERPRETER_PORT ? Number(process.env.INTERPRETER_PORT) : await getPort({ port: getPort.makeRange(8000, 8100) })
+    const port = process.env.INTERPRETER_PORT ? Number(process.env.INTERPRETER_PORT) : await getPort({ port: getPort.makeRange(8000, 8100) })
 
-    const env = { ...process.env, INTERPRETER_HOST: '127.0.0.1', INTERPRETER_PORT: String(serverPort) }
+    const env = { ...process.env, INTERPRETER_HOST: '127.0.0.1', INTERPRETER_PORT: String(port) }
 
     // Prefer running within user's environment; assume "interpreter" available on PATH
     const cmd = 'interpreter'
     const args = ['--server']
 
-    pyProc = spawn(cmd, args, { env, stdio: 'pipe' })
+    const pyProc = spawn(cmd, args, { env, stdio: 'pipe' })
 
     pyProc.stdout.on('data', (d) => {
       const s = d.toString()
@@ -33,12 +37,14 @@ async function startPythonServer() {
     })
 
     // Wait until heartbeat responds
-    const ok = await waitFor(`http://127.0.0.1:${serverPort}/heartbeat`, 20000)
+    const ok = await waitFor(`http://127.0.0.1:${port}/heartbeat`, 20000)
     if (!ok) throw new Error('Interpreter server failed to start')
+
+    return { pyProc, port }
   } catch (e) {
     console.error(e)
     dialog.showErrorBox('Failed to start Open Interpreter', String(e))
-    app.quit()
+    throw e
   }
 }
 
@@ -55,10 +61,11 @@ async function waitFor(url, timeoutMs) {
 }
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -66,39 +73,77 @@ function createWindow() {
 
   const isDev = process.env.ELECTRON_START_URL
   if (isDev) {
-    mainWindow.loadURL(process.env.ELECTRON_START_URL)
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    win.loadURL(process.env.ELECTRON_START_URL)
+    win.webContents.openDevTools({ mode: 'detach' })
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    win.loadFile(path.join(__dirname, '../dist/index.html'))
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
+  win.on('closed', () => {
+    const entry = Array.from(sessions.entries()).find(([, s]) => s.window === win)
+    if (entry) {
+      const [id, s] = entry
+      try { s.pyProc?.kill() } catch {}
+      sessions.delete(id)
+    }
   })
+
+  return win
 }
 
+async function createSessionWindow() {
+  const { pyProc, port } = await startPythonServer()
+  const win = createWindow()
+  const id = sessionId()
+  sessions.set(id, { window: win, pyProc, port })
+  return { id, port }
+}
+
+import { ipcMain } from 'electron'
+
+ipcMain.handle('session:new', async (_e, _opts) => {
+  const s = await createSessionWindow()
+  return s
+})
+
+ipcMain.handle('session:list', () => {
+  return Array.from(sessions.entries()).map(([id, s]) => ({ id, port: s.port }))
+})
+
+ipcMain.handle('session:get', (_e) => {
+  const focused = BrowserWindow.getFocusedWindow()
+  const entry = Array.from(sessions.entries()).find(([, s]) => s.window === focused)
+  if (!entry) return null
+  const [id, s] = entry
+  return { id, port: s.port }
+})
+
+ipcMain.handle('session:relay', (_e, { targetSessionId, content }) => {
+  const target = sessions.get(String(targetSessionId))
+  if (!target) return false
+  target.window.webContents.send('session:external-message', { type: 'relay', content })
+  return true
+})
+
 app.on('ready', async () => {
-  // Ensure Python server is running
-  await startPythonServer()
-  // Vite dev server URL for renderer during development
   if (process.env.NODE_ENV !== 'production') {
     process.env.ELECTRON_START_URL = `http://localhost:5173`
   }
-  createWindow()
+  await createSessionWindow()
 })
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    if (pyProc) {
-      try { pyProc.kill() } catch {}
-      pyProc = null
+    for (const [, s] of sessions) {
+      try { s.pyProc?.kill() } catch {}
     }
+    sessions.clear()
     app.quit()
   }
 })
 
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
+app.on('activate', async () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    await createSessionWindow()
   }
 })
