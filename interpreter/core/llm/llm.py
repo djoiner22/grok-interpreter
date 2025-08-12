@@ -113,6 +113,27 @@ class Llm:
         ]:
             model = "claude-3-5-sonnet-20240620"
             self.model = "claude-3-5-sonnet-20240620"
+        
+        # Add Grok model mappings
+        if model in [
+            "grok",
+            "grok-beta",
+            "grok-3",
+            "grok-3-beta",
+        ]:
+            if model == "grok":
+                model = "x-ai/grok-beta"
+                self.model = "x-ai/grok-beta"
+            elif model == "grok-beta":
+                model = "x-ai/grok-beta"
+                self.model = "x-ai/grok-beta"
+            elif model == "grok-3":
+                model = "x-ai/grok-3-beta"
+                self.model = "x-ai/grok-3-beta"
+            elif model == "grok-3-beta":
+                model = "x-ai/grok-3-beta"
+                self.model = "x-ai/grok-3-beta"
+                
         # Setup our model endpoint
         if model == "i":
             model = "openai/i"

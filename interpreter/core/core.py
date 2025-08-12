@@ -19,6 +19,7 @@ from .llm.llm import Llm
 from .respond import respond
 from .utils.telemetry import send_telemetry
 from .utils.truncate_output import truncate_output
+from .grok_cursor_workflow import GrokCursorWorkflow
 
 
 class OpenInterpreter:
@@ -137,6 +138,9 @@ class OpenInterpreter:
         self.code_output_template = code_output_template
         self.empty_code_output_template = empty_code_output_template
         self.code_output_sender = code_output_sender
+        
+        # Grok-Cursor Workflow
+        self.grok_cursor_workflow = None  # Initialized on first use
 
     def local_setup(self):
         """
@@ -443,3 +447,57 @@ class OpenInterpreter:
     def get_oi_dir(self):
         # Again, just handy for start_script in profiles.
         return oi_dir
+
+    def get_grok_cursor_workflow(self, workspace_path=None):
+        """
+        Get or create the Grok-Cursor workflow instance.
+        
+        Args:
+            workspace_path: Optional path to workspace directory
+            
+        Returns:
+            GrokCursorWorkflow instance
+        """
+        if self.grok_cursor_workflow is None:
+            self.grok_cursor_workflow = GrokCursorWorkflow(self, workspace_path)
+        return self.grok_cursor_workflow
+    
+    def create_project_with_grok(self, project_description: str, workspace_path=None):
+        """
+        Create a complete project using Grok for outline generation and Cursor for implementation.
+        
+        Args:
+            project_description: Description of the project to build
+            workspace_path: Optional path to workspace directory
+            
+        Returns:
+            Dict containing workflow results
+        """
+        workflow = self.get_grok_cursor_workflow(workspace_path)
+        return workflow.run_complete_workflow(project_description, use_grok=True)
+    
+    def generate_outline_with_grok(self, project_description: str):
+        """
+        Generate a project outline using Grok.
+        
+        Args:
+            project_description: Description of the project
+            
+        Returns:
+            Dict containing the generated outline
+        """
+        workflow = self.get_grok_cursor_workflow()
+        return workflow.generate_project_outline(project_description, use_grok=True)
+    
+    def implement_with_cursor(self, outline_data):
+        """
+        Implement a project using Cursor based on an outline.
+        
+        Args:
+            outline_data: Project outline data
+            
+        Returns:
+            Dict containing implementation results
+        """
+        workflow = self.get_grok_cursor_workflow()
+        return workflow.implement_project_with_cursor(outline_data)
