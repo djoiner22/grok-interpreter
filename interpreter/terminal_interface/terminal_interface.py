@@ -17,7 +17,7 @@ import tempfile
 import time
 
 from ..core.utils.scan_code import scan_code
-from ..core.utils.system_debug_info import system_info
+from ..core.utils.system_debug_info import get_system_debug_info
 from ..core.utils.truncate_output import truncate_output
 from .components.code_block import CodeBlock
 from .components.message_block import MessageBlock
@@ -537,5 +537,5 @@ def terminal_interface(interpreter, message):
                 break
         except:
             if interpreter.debug:
-                system_info(interpreter)
+                get_system_debug_info(interpreter)
             raise
