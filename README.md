@@ -98,6 +98,38 @@ grok-server
 
 ---
 
+## ⚙️ Setup and Environment
+
+- **Use a virtual environment** (recommended):
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  python -m pip install --upgrade pip
+  ```
+- **Install minimal dev/test deps** (to run the core test suite without heavy extras):
+  ```bash
+  pip install pytest fastapi uvicorn janus shortuuid pydantic starlette websockets websocket-client requests rich yaspin tokentrim litellm inquirer psutil wget toml html2text ipython Pillow jupyter_client ipykernel
+  ```
+- **Optional features** (install as needed):
+  - Browser automation: `pip install selenium webdriver-manager`
+  - HTML rendering to image: `pip install html2image`
+  - Computer vision/OS automation: `pip install "grok-interpreter[os]"`
+
+### Notes for Debian/Ubuntu (PEP 668)
+If you see “externally-managed-environment”, create a venv (above) or pass `--break-system-packages` to pip at your own risk.
+
+### Running tests
+```bash
+pytest -q
+```
+
+### Troubleshooting
+- ImportError for optional modules (e.g., Selenium, html2image, matplotlib): these are now lazily imported and won’t block imports. Install the optional package if you need the related feature.
+- If Jupyter kernel tools are missing: `pip install jupyter_client ipykernel`.
+- If Chrome is required for Selenium, ensure Chrome/Chromedriver is installed or use `webdriver-manager`.
+
+---
+
 ## 🎯 Core Workflows
 
 ### 1. **Grok Project Creation**
